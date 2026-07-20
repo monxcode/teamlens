@@ -17,68 +17,70 @@ Related: `PROJECT_OVERVIEW.md`, `PRODUCT_REQUIREMENTS_DOCUMENT.md`, `DATABASE_SC
 ```mermaid
 flowchart TB
 
-    %% =========================
-    %% Frontend
-    %% =========================
-    FE["Next.js Frontend<br/>(React • TypeScript • Tailwind CSS)"]
+    FE["Next.js Frontend<br/>React + TypeScript + Tailwind"]
 
-    %% =========================
-    %% Backend
-    %% =========================
-    API["NestJS API<br/>(Modular Monolith)<hr/>
-    Auth<br/>
-    Organizations<br/>
-    Projects<br/>
-    Tasks<br/>
-    Submissions<br/>
-    AI<br/>
-    GitHub<br/>
-    Chat<br/>
-    Billing<br/>
-    Notifications<br/>
-    Audit<br/>
-    Search"]
+    API["NestJS API<br/>Modular Monolith"]
 
-    FE <-->|REST API + WebSocket (Socket.io)| API
+    AUTH["Auth"]
+    ORGS["Organizations"]
+    PROJECTS["Projects"]
+    TASKS["Tasks"]
+    SUBMISSIONS["Submissions"]
+    AI["AI"]
+    GITHUB["GitHub"]
+    CHAT["Chat"]
+    BILLING["Billing"]
+    NOTIFICATIONS["Notifications"]
+    AUDIT["Audit"]
+    SEARCH["Search"]
 
-    %% =========================
-    %% Database Layer
-    %% =========================
-    DB["PostgreSQL<br/>(Prisma ORM)"]
-    REDIS["Redis<br/>(Cache • Pub/Sub • BullMQ Backend)"]
+    DB["PostgreSQL<br/>Prisma ORM"]
+    REDIS["Redis<br/>Cache + Pub/Sub + BullMQ"]
+
+    WORKERS["BullMQ Workers"]
+
+    AIJOB["AI Analysis"]
+    REPORT["Report Generation"]
+    GHSYNC["GitHub Sync"]
+    FANOUT["Notification Fanout"]
+    EMAIL["Email / Push Dispatch"]
+
+    LLM["LLM Provider"]
+    GHAPI["GitHub API"]
+    STORAGE["Supabase / Cloudflare R2"]
+    STRIPE["Stripe"]
+
+    FE <-->|REST API + WebSocket| API
+
+    API --> AUTH
+    API --> ORGS
+    API --> PROJECTS
+    API --> TASKS
+    API --> SUBMISSIONS
+    API --> AI
+    API --> GITHUB
+    API --> CHAT
+    API --> BILLING
+    API --> NOTIFICATIONS
+    API --> AUDIT
+    API --> SEARCH
 
     API --> DB
     API --> REDIS
-
-    %% =========================
-    %% Background Workers
-    %% =========================
-    WORKERS["BullMQ Workers<hr/>
-    • AI Analysis<br/>
-    • Report Generation<br/>
-    • GitHub Sync<br/>
-    • Notification Fanout<br/>
-    • Email / Push Dispatch"]
+    API --> STRIPE
 
     REDIS --> WORKERS
 
-    %% =========================
-    %% External Services
-    %% =========================
-    LLM["LLM Provider<br/>(AI Scoring & Summaries)"]
-    GH["GitHub API<br/>(Repositories • PRs • Reviews)"]
-    STORAGE["Storage<br/>(Supabase Storage / Cloudflare R2)"]
+    WORKERS --> AIJOB
+    WORKERS --> REPORT
+    WORKERS --> GHSYNC
+    WORKERS --> FANOUT
+    WORKERS --> EMAIL
 
-    WORKERS --> LLM
-    WORKERS --> GH
-    WORKERS --> STORAGE
-
-    %% =========================
-    %% Billing
-    %% =========================
-    STRIPE["Stripe<br/>(Billing & Payments)"]
-
-    API --> STRIPE
+    AIJOB --> LLM
+    GHSYNC --> GHAPI
+    REPORT --> STORAGE
+    EMAIL --> STORAGE
 ```
 
 ## 3. Frontend Architecture
