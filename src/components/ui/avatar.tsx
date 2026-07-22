@@ -95,29 +95,31 @@ function Avatar({ name, src, size = "md", className, role, teamRole, showBadge =
 
   return (
     <div
-      className={cn(
-        "relative inline-flex items-center justify-center rounded-full font-medium text-white shrink-0 overflow-hidden",
-        sizeClasses[size],
-        !showImage && getColor(name),
-        className
-      )}
+      className={cn("relative inline-flex shrink-0 rounded-full", sizeClasses[size], className)}
       title={tooltip}
     >
-      {showImage ? (
-        <img
-          src={cacheBustedSrc}
-          alt={name}
-          className="h-full w-full object-cover"
-          onError={() => setImgError(true)}
-        />
-      ) : (
-        getInitials(name)
-      )}
+      <div
+        className={cn(
+          "flex h-full w-full items-center justify-center rounded-full font-medium text-white overflow-hidden",
+          !showImage && getColor(name)
+        )}
+      >
+        {showImage ? (
+          <img
+            src={cacheBustedSrc}
+            alt={name}
+            className="h-full w-full object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          getInitials(name)
+        )}
+      </div>
 
       {BadgeIcon && (
         <div
           className={cn(
-            "absolute -bottom-0.5 -right-0.5 flex items-center justify-center rounded-full bg-background p-[1px] shadow-sm",
+            "absolute -bottom-0.5 -right-0.5 flex items-center justify-center rounded-full bg-background p-[1px] shadow-sm z-10",
             badgeSizes[size]
           )}
           title={badge?.label}
@@ -129,7 +131,7 @@ function Avatar({ name, src, size = "md", className, role, teamRole, showBadge =
       {isOnline !== undefined && (
         <span
           className={cn(
-            "absolute rounded-full bg-emerald-500 ring-2 ring-background",
+            "absolute rounded-full bg-emerald-500 ring-2 ring-background z-10",
             onlineDotSizes[size],
             BadgeIcon ? "-bottom-0.5 -left-0.5" : "-bottom-0.5 -right-0.5"
           )}
