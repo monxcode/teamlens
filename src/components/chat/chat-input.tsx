@@ -107,13 +107,13 @@ export function ChatInput({ replyTo, onSend, onCancelReply, onTyping, teamRoleMa
             rows={1}
             className="w-full rounded-xl border bg-background px-4 py-2.5 pr-12 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring min-h-[40px] max-h-[120px]"
           />
-          <div className="absolute bottom-2 right-2 flex items-center gap-1">
+          <div className="absolute right-1 inset-y-0 flex items-center">
             <button
               ref={emojiButtonRef}
               onClick={() => setShowEmoji(!showEmoji)}
-              className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
             >
-              <Smile className="h-4 w-4" />
+              <Smile className="h-5 w-5" />
             </button>
             {showEmoji && (
               <EmojiPicker

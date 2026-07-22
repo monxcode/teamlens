@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 const EMOJI_CATEGORIES = [
@@ -22,6 +22,9 @@ const EMOJI_CATEGORIES = [
   },
 ];
 
+const GAP = 4;
+const VIEWPORT_PADDING = 4;
+
 interface EmojiPickerProps {
   onSelect: (emoji: string) => void;
   onClose: () => void;
@@ -30,56 +33,44 @@ interface EmojiPickerProps {
 
 export function EmojiPicker({ onSelect, onClose, anchorRef }: EmojiPickerProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
-  const [placedAbove, setPlacedAbove] = useState(true);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 
+  // Measure the ACTUAL rendered picker and anchor, then compute position.
+  // Runs via useLayoutEffect so it fires after DOM commit but before paint.
   const updatePosition = useCallback(() => {
     const anchor = anchorRef.current;
-    if (!anchor) return;
+    const picker = ref.current;
+    if (!anchor || !picker) return;
 
-    const rect = anchor.getBoundingClientRect();
-    const pickerWidth = 288;
-    const pickerHeight = 320;
-    const gap = 8;
+    const anchorRect = anchor.getBoundingClientRect();
+    const pickerRect = picker.getBoundingClientRect();
     const viewportW = window.innerWidth;
     const viewportH = window.innerHeight;
 
-    const spaceAbove = rect.top;
-    const spaceBelow = viewportH - rect.bottom;
+    // Place picker so its bottom edge is GAP above the anchor's top edge
+    let top = anchorRect.top - pickerRect.height - GAP;
 
-    let top: number;
-    let above = true;
-
-    if (spaceAbove >= pickerHeight + gap) {
-      top = rect.top - pickerHeight - gap;
-      above = true;
-    } else if (spaceBelow >= pickerHeight + gap) {
-      top = rect.bottom + gap;
-      above = false;
-    } else {
-      top = Math.max(gap, Math.min(rect.top - pickerHeight - gap, viewportH - pickerHeight - gap));
-      above = true;
+    // Flip below if not enough room above
+    if (top < VIEWPORT_PADDING) {
+      top = anchorRect.bottom + GAP;
     }
 
-    let left = rect.left;
-    if (left + pickerWidth > viewportW - gap) {
-      left = viewportW - pickerWidth - gap;
-    }
-    if (left < gap) {
-      left = gap;
-    }
+    // Right-align picker's right edge to anchor's right edge, clamped to viewport
+    let left = anchorRect.right - pickerRect.width;
+    left = Math.max(VIEWPORT_PADDING, Math.min(left, viewportW - pickerRect.width - VIEWPORT_PADDING));
 
-    setPosition({ top, left });
-    setPlacedAbove(above);
+    setPos({ top, left });
   }, [anchorRef]);
 
-  useEffect(() => {
+  // Position after first render (visibility: hidden during measurement)
+  useLayoutEffect(() => {
     updatePosition();
+  }, [updatePosition]);
 
+  // Reposition on scroll / resize
+  useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        onClose();
-      }
+      if (e.key === "Escape") onClose();
     }
 
     function handleClickOutside(e: MouseEvent) {
@@ -91,19 +82,15 @@ export function EmojiPicker({ onSelect, onClose, anchorRef }: EmojiPickerProps) 
       }
     }
 
-    function handleScroll() {
-      updatePosition();
-    }
-
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("scroll", handleScroll, true);
+    window.addEventListener("scroll", updatePosition, true);
     window.addEventListener("resize", updatePosition);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("scroll", updatePosition, true);
       window.removeEventListener("resize", updatePosition);
     };
   }, [onClose, updatePosition, anchorRef]);
@@ -114,7 +101,11 @@ export function EmojiPicker({ onSelect, onClose, anchorRef }: EmojiPickerProps) 
     <div
       ref={ref}
       className="fixed w-72 rounded-xl border bg-card shadow-xl z-[9999] overflow-hidden"
-      style={{ top: position.top, left: position.left }}
+      style={
+        pos
+          ? { top: pos.top, left: pos.left }
+          : { visibility: "hidden", top: 0, left: 0 }
+      }
     >
       <div className="max-h-60 overflow-y-auto p-2 space-y-2">
         {EMOJI_CATEGORIES.map((cat) => (
