@@ -96,38 +96,36 @@ export function ChatInput({ replyTo, onSend, onCancelReply, onTyping, teamRoleMa
         </div>
       )}
 
-      <div className="flex items-end gap-2">
-        <div className="relative flex-1">
-          <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={(e) => handleChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-            rows={1}
-            className="w-full rounded-xl border bg-background px-4 py-2.5 pr-12 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring min-h-[40px] max-h-[120px]"
+      <div className="flex items-center gap-2">
+        <button
+          ref={emojiButtonRef}
+          onClick={() => setShowEmoji(!showEmoji)}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Smile className="h-5 w-5" />
+        </button>
+        {showEmoji && (
+          <EmojiPicker
+            onSelect={handleEmojiSelect}
+            onClose={() => setShowEmoji(false)}
+            anchorRef={emojiButtonRef}
           />
-          <div className="absolute right-1 inset-y-0 flex items-center">
-            <button
-              ref={emojiButtonRef}
-              onClick={() => setShowEmoji(!showEmoji)}
-              className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Smile className="h-5 w-5" />
-            </button>
-            {showEmoji && (
-              <EmojiPicker
-                onSelect={handleEmojiSelect}
-                onClose={() => setShowEmoji(false)}
-                anchorRef={emojiButtonRef}
-              />
-            )}
-          </div>
-        </div>
+        )}
+
+        <textarea
+          ref={textareaRef}
+          value={content}
+          onChange={(e) => handleChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Type a message..."
+          rows={1}
+          className="flex-1 resize-none rounded-xl border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring min-h-[40px] max-h-[120px]"
+        />
+
         <button
           onClick={handleSubmit}
           disabled={!content.trim()}
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Send className="h-4 w-4" />
         </button>
