@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatRelativeTime } from "@/lib/utils";
+import { cn, formatRelativeTime } from "@/lib/utils";
 import { Megaphone, Plus, Users, Eye, Clock, CheckCircle2, Trash2 } from "lucide-react";
 
 interface Announcement {
@@ -31,7 +31,7 @@ export default function AdminAnnouncementsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [newAnnouncement, setNewAnnouncement] = useState({
     title: "", message: "", type: "info", targetType: "everyone",
-    targetIds: [] as string[], expiresAt: "",
+    targetIds: [] as string[], expiresAt: "", enableExpiry: false,
   });
   const [creating, setCreating] = useState(false);
   const [teams, setTeams] = useState<Team[]>([]);
@@ -66,13 +66,17 @@ export default function AdminAnnouncementsPage() {
       method: "POST",
       headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        ...newAnnouncement,
-        expiresAt: newAnnouncement.expiresAt || null,
+        title: newAnnouncement.title,
+        message: newAnnouncement.message,
+        type: newAnnouncement.type,
+        targetType: newAnnouncement.targetType,
+        targetIds: newAnnouncement.targetIds,
+        expiresAt: newAnnouncement.enableExpiry && newAnnouncement.expiresAt ? newAnnouncement.expiresAt : null,
       }),
     });
     if (res.ok) {
       setShowCreate(false);
-      setNewAnnouncement({ title: "", message: "", type: "info", targetType: "everyone", targetIds: [], expiresAt: "" });
+      setNewAnnouncement({ title: "", message: "", type: "info", targetType: "everyone", targetIds: [], expiresAt: "", enableExpiry: false });
       fetchAnnouncements();
     }
     setCreating(false);
@@ -181,31 +185,109 @@ export default function AdminAnnouncementsPage() {
 
       {/* Create Announcement Modal */}
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="New Announcement">
-        <form onSubmit={createAnnouncement} className="space-y-4">
+        <form onSubmit={createAnnouncement} className="space-y-5">
+          {/* Title */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Title</label>
-            <Input placeholder="Announcement title" value={newAnnouncement.title} onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })} required />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Message</label>
-            <Textarea placeholder="Announcement message..." value={newAnnouncement.message} onChange={(e) => setNewAnnouncement({ ...newAnnouncement, message: e.target.value })} required />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Type</label>
-              <Select value={newAnnouncement.type} onChange={(e) => setNewAnnouncement({ ...newAnnouncement, type: e.target.value })}
-                options={[{ value: "info", label: "Info" }, { value: "warning", label: "Warning" }, { value: "critical", label: "Critical" }]} />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Expires</label>
-              <Input type="datetime-local" value={newAnnouncement.expiresAt} onChange={(e) => setNewAnnouncement({ ...newAnnouncement, expiresAt: e.target.value })} />
-            </div>
+            <Input
+              placeholder="e.g. System Maintenance Notice"
+              value={newAnnouncement.title}
+              onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
+              required
+            />
           </div>
 
+          {/* Message */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Message</label>
+            <Textarea
+              placeholder="Write your announcement message..."
+              value={newAnnouncement.message}
+              onChange={(e) => setNewAnnouncement({ ...newAnnouncement, message: e.target.value })}
+              className="min-h-[100px]"
+              required
+            />
+          </div>
+
+          {/* Type */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Announcement Type</label>
+            <Select
+              value={newAnnouncement.type}
+              onChange={(e) => setNewAnnouncement({ ...newAnnouncement, type: e.target.value })}
+              options={[
+                { value: "info", label: "Info — General announcement" },
+                { value: "warning", label: "Warning — Important notice" },
+                { value: "critical", label: "Critical — Urgent alert" },
+              ]}
+            />
+          </div>
+
+          {/* Expiry Date Toggle */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Expiry Date</label>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setNewAnnouncement({ ...newAnnouncement, enableExpiry: false, expiresAt: "" })}
+                className={cn(
+                  "flex-1 px-4 py-2.5 rounded-lg border text-sm font-medium transition-all",
+                  !newAnnouncement.enableExpiry
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-input text-muted-foreground hover:bg-muted"
+                )}
+              >
+                No Expiry
+              </button>
+              <button
+                type="button"
+                onClick={() => setNewAnnouncement({ ...newAnnouncement, enableExpiry: true })}
+                className={cn(
+                  "flex-1 px-4 py-2.5 rounded-lg border text-sm font-medium transition-all",
+                  newAnnouncement.enableExpiry
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-input text-muted-foreground hover:bg-muted"
+                )}
+              >
+                Set Expiry Date
+              </button>
+            </div>
+
+            {newAnnouncement.enableExpiry && (
+              <div className="space-y-2">
+                <Input
+                  type="datetime-local"
+                  value={newAnnouncement.expiresAt}
+                  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, expiresAt: e.target.value })}
+                  min={new Date().toISOString().slice(0, 16)}
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  The announcement will automatically deactivate after this date.
+                </p>
+              </div>
+            )}
+
+            {!newAnnouncement.enableExpiry && (
+              <p className="text-xs text-muted-foreground">
+                This announcement will remain active until manually archived or deleted.
+              </p>
+            )}
+          </div>
+
+          {/* Target Audience */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Target Audience</label>
-            <Select value={newAnnouncement.targetType} onChange={(e) => setNewAnnouncement({ ...newAnnouncement, targetType: e.target.value, targetIds: [] })}
-              options={[{ value: "everyone", label: "Everyone" }, { value: "teams", label: "Specific Teams" }, { value: "roles", label: "Specific Roles" }, { value: "users", label: "Individual Users" }]} />
+            <Select
+              value={newAnnouncement.targetType}
+              onChange={(e) => setNewAnnouncement({ ...newAnnouncement, targetType: e.target.value, targetIds: [] })}
+              options={[
+                { value: "everyone", label: "Everyone" },
+                { value: "teams", label: "Specific Teams" },
+                { value: "roles", label: "Specific Roles" },
+                { value: "users", label: "Individual Users" },
+              ]}
+            />
           </div>
 
           {newAnnouncement.targetType === "teams" && (
@@ -213,7 +295,7 @@ export default function AdminAnnouncementsPage() {
               <label className="text-sm font-medium">Select Teams</label>
               <div className="max-h-40 overflow-y-auto border rounded-lg p-2 space-y-1">
                 {teams.map((t) => (
-                  <label key={t.id} className="flex items-center gap-2 p-1.5 rounded hover:bg-muted cursor-pointer">
+                  <label key={t.id} className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer transition-colors">
                     <input type="checkbox" checked={newAnnouncement.targetIds.includes(t.id)}
                       onChange={(e) => setNewAnnouncement({
                         ...newAnnouncement,
@@ -222,6 +304,7 @@ export default function AdminAnnouncementsPage() {
                     <span className="text-sm">{t.name}</span>
                   </label>
                 ))}
+                {teams.length === 0 && <p className="text-xs text-muted-foreground p-2">No teams available</p>}
               </div>
             </div>
           )}
@@ -231,7 +314,7 @@ export default function AdminAnnouncementsPage() {
               <label className="text-sm font-medium">Select Roles</label>
               <div className="flex flex-wrap gap-2">
                 {["super_admin", "admin", "member"].map((role) => (
-                  <label key={role} className="flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer hover:bg-muted">
+                  <label key={role} className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer hover:bg-muted transition-colors">
                     <input type="checkbox" checked={newAnnouncement.targetIds.includes(role)}
                       onChange={(e) => setNewAnnouncement({
                         ...newAnnouncement,
@@ -247,10 +330,10 @@ export default function AdminAnnouncementsPage() {
           {newAnnouncement.targetType === "users" && (
             <div className="space-y-2">
               <label className="text-sm font-medium">Select Users</label>
-              <Input placeholder="Search users..." value={targetSearch} onChange={(e) => setTargetSearch(e.target.value)} />
+              <Input placeholder="Search by name or email..." value={targetSearch} onChange={(e) => setTargetSearch(e.target.value)} />
               <div className="max-h-40 overflow-y-auto border rounded-lg p-2 space-y-1">
                 {filteredUsers.map((u) => (
-                  <label key={u.id} className="flex items-center gap-2 p-1.5 rounded hover:bg-muted cursor-pointer">
+                  <label key={u.id} className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer transition-colors">
                     <input type="checkbox" checked={newAnnouncement.targetIds.includes(u.id)}
                       onChange={(e) => setNewAnnouncement({
                         ...newAnnouncement,
@@ -262,14 +345,16 @@ export default function AdminAnnouncementsPage() {
                     </div>
                   </label>
                 ))}
+                {filteredUsers.length === 0 && <p className="text-xs text-muted-foreground p-2">No users found</p>}
               </div>
             </div>
           )}
 
-          <div className="flex gap-3 pt-2">
+          {/* Actions */}
+          <div className="flex gap-3 pt-3 border-t">
             <Button type="button" variant="outline" onClick={() => setShowCreate(false)} className="flex-1">Cancel</Button>
             <Button type="submit" className="flex-1" disabled={creating}>
-              {creating ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : "Publish"}
+              {creating ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : "Publish Announcement"}
             </Button>
           </div>
         </form>
