@@ -18,6 +18,7 @@ export function ChatInput({ replyTo, onSend, onCancelReply, onTyping, teamRoleMa
   const [content, setContent] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -107,20 +108,20 @@ export function ChatInput({ replyTo, onSend, onCancelReply, onTyping, teamRoleMa
             className="w-full rounded-xl border bg-background px-4 py-2.5 pr-12 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring min-h-[40px] max-h-[120px]"
           />
           <div className="absolute bottom-2 right-2 flex items-center gap-1">
-            <div className="relative">
-              <button
-                onClick={() => setShowEmoji(!showEmoji)}
-                className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Smile className="h-4 w-4" />
-              </button>
-              {showEmoji && (
-                <EmojiPicker
-                  onSelect={handleEmojiSelect}
-                  onClose={() => setShowEmoji(false)}
-                />
-              )}
-            </div>
+            <button
+              ref={emojiButtonRef}
+              onClick={() => setShowEmoji(!showEmoji)}
+              className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Smile className="h-4 w-4" />
+            </button>
+            {showEmoji && (
+              <EmojiPicker
+                onSelect={handleEmojiSelect}
+                onClose={() => setShowEmoji(false)}
+                anchorRef={emojiButtonRef}
+              />
+            )}
           </div>
         </div>
         <button
