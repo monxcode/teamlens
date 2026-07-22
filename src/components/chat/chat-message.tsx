@@ -14,6 +14,7 @@ import {
   Check,
   Reply,
   X,
+  Shield,
 } from "lucide-react";
 
 interface ChatMessageProps {
@@ -51,6 +52,7 @@ export function ChatMessage({
 
   const isOnline = onlineUserIds.includes(msg.userId);
   const msgTeamRole = teamRoleMap?.get(msg.userId);
+  const isSuperAdmin = msg.user.role === "super_admin";
   const readBy = msg.readReceipts
     .filter((r) => r.userId !== msg.userId)
     .map((r) => r.user.name);
@@ -103,6 +105,12 @@ export function ChatMessage({
         {!isGrouped && (
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold">{msg.user.name}</span>
+            {isSuperAdmin && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20">
+                <Shield className="h-2.5 w-2.5" />
+                Super Admin
+              </span>
+            )}
             <span className="text-[11px] text-muted-foreground">
               {formatRelativeTime(msg.createdAt)}
             </span>
@@ -152,6 +160,10 @@ export function ChatMessage({
                 Cancel
               </button>
             </div>
+          </div>
+        ) : isSuperAdmin ? (
+          <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.03] px-3 py-2 dark:bg-amber-500/[0.06]">
+            <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
           </div>
         ) : (
           <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
