@@ -49,3 +49,24 @@ export async function PATCH(request: Request) {
     );
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const payload = getUserFromRequest(request);
+    if (!payload) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await db.notification.deleteMany({
+      where: { userId: payload.userId },
+    });
+
+    return Response.json({ success: true, unreadCount: 0 });
+  } catch (error) {
+    console.error("Notifications delete error:", error);
+    return Response.json(
+      { error: "Failed to clear notifications" },
+      { status: 500 }
+    );
+  }
+}

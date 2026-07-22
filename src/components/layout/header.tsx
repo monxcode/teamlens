@@ -4,6 +4,8 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useThemeStore } from "@/stores/theme-store";
 import { useSidebarStore } from "@/stores/sidebar-store";
 import { Avatar } from "@/components/ui/avatar";
+import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { formatRelativeTime } from "@/lib/utils";
@@ -15,6 +17,7 @@ import {
   LogOut,
   User,
   ChevronDown,
+  Trash2,
 } from "lucide-react";
 
 export function Header() {
@@ -28,6 +31,7 @@ export function Header() {
     { id: string; title: string; message: string; read: boolean; createdAt: string }[]
   >([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
@@ -71,6 +75,22 @@ export function Header() {
       });
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
       setUnreadCount(0);
+    } catch {}
+  }
+
+  async function clearAll() {
+    try {
+      const token = localStorage.getItem("pulse_token");
+      const res = await fetch("/api/notifications", {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setNotifications([]);
+        setUnreadCount(0);
+        setShowClearConfirm(false);
+        setShowNotifications(false);
+      }
     } catch {}
   }
 
@@ -126,13 +146,24 @@ export function Header() {
             <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border bg-card shadow-xl overflow-hidden">
               <div className="flex items-center justify-between border-b px-4 py-3">
                 <p className="font-semibold text-sm">Notifications</p>
-                {unreadCount > 0 && (
-                  <button
-                    onClick={markAllRead}
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Mark all read
-                  </button>
+                {notifications.length > 0 && (
+                  <div className="flex items-center gap-3">
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={markAllRead}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        Mark all read
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setShowClearConfirm(true)}
+                      className="text-xs text-destructive hover:underline flex items-center gap-1"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      Clear all
+                    </button>
+                  </div>
                 )}
               </div>
               <div className="max-h-80 overflow-y-auto">
@@ -201,6 +232,34 @@ export function Header() {
           )}
         </div>
       </div>
+
+      <Modal
+        open={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        title="Clear all notifications"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Are you sure you want to clear all notifications? This action cannot be undone.
+          </p>
+          <div className="flex gap-3 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowClearConfirm(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={clearAll}
+              className="flex-1"
+            >
+              Clear All
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </header>
   );
 }
