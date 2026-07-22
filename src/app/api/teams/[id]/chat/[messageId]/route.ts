@@ -46,7 +46,7 @@ export async function PATCH(
         replyTo: {
           include: {
             user: {
-              select: { id: true, name: true, email: true, avatarUrl: true },
+              select: { id: true, name: true, email: true, avatarUrl: true, role: true },
             },
           },
         },

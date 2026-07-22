@@ -29,7 +29,7 @@ export interface ChatMessageData {
   replyTo: {
     id: string;
     content: string;
-    user: { id: string; name: string; avatarUrl: string | null };
+    user: { id: string; name: string; avatarUrl: string | null; role: string };
   } | null;
   readReceipts: {
     id: string;

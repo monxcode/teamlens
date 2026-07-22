@@ -92,6 +92,28 @@ export default function AdminTeamChatPage() {
   const canModerate = true;
   const canPin = true;
 
+  const selectedTeam = teams.find((t) => t.id === selectedTeamId) || null;
+
+  const teamRoleMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (selectedTeam) {
+      for (const member of selectedTeam.members) {
+        map.set(member.user.id, member.role);
+      }
+    }
+    return map;
+  }, [selectedTeam]);
+
+  const userRoleMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (selectedTeam) {
+      for (const member of selectedTeam.members) {
+        map.set(member.user.id, member.user.role);
+      }
+    }
+    return map;
+  }, [selectedTeam]);
+
   const handlers = useMemo(
     () => ({
       onMessage: (message: ChatMessageData) => {
@@ -334,8 +356,6 @@ export default function AdminTeamChatPage() {
     }
   }, []);
 
-  const selectedTeam = teams.find((t) => t.id === selectedTeamId) || null;
-
   return (
     <div className="h-[calc(100vh-8rem)] flex gap-4">
       <div className="hidden lg:flex flex-col w-64 rounded-xl border bg-card overflow-hidden shrink-0">
@@ -474,6 +494,7 @@ export default function AdminTeamChatPage() {
                           onEdit={handleEdit}
                           onDelete={handleDelete}
                           onPin={handlePin}
+                          teamRoleMap={teamRoleMap}
                         />
                       </div>
                     );
@@ -482,7 +503,7 @@ export default function AdminTeamChatPage() {
                 </>
               )}
 
-              <TypingIndicator typingUsers={typingUsers} currentUserId={currentUserId} />
+              <TypingIndicator typingUsers={typingUsers} currentUserId={currentUserId} teamRoleMap={teamRoleMap} userRoleMap={userRoleMap} />
             </div>
 
             <ChatInput
@@ -490,6 +511,7 @@ export default function AdminTeamChatPage() {
               onSend={handleSend}
               onCancelReply={() => setReplyTo(null)}
               onTyping={handleTyping}
+              teamRoleMap={teamRoleMap}
             />
           </>
         )}
@@ -516,12 +538,14 @@ export default function AdminTeamChatPage() {
                   key={member.id}
                   className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-muted/50 transition-colors"
                 >
-                  <div className="relative shrink-0">
-                    <Avatar name={member.user.name} src={member.user.avatarUrl} size="sm" />
-                    {isMemberOnline && (
-                      <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-background" />
-                    )}
-                  </div>
+                  <Avatar
+                    name={member.user.name}
+                    src={member.user.avatarUrl}
+                    size="sm"
+                    role={member.user.role}
+                    teamRole={member.role}
+                    isOnline={isMemberOnline}
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
                       {member.user.name}

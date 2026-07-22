@@ -15,7 +15,7 @@ interface TeamInfo {
 interface PinnedMessage {
   id: string;
   content: string;
-  user: { id: string; name: string; role: string };
+  user: { id: string; name: string; role: string; avatarUrl?: string | null };
   pinnedAt: string;
 }
 
@@ -102,9 +102,17 @@ export function ChatHeader({ team, onlineUserIds, pinnedMessages, onSearch, sear
             <p className="text-xs font-medium text-muted-foreground">Pinned messages</p>
           </div>
           {pinnedMessages.map((msg) => (
-            <p key={msg.id} className="text-xs text-muted-foreground truncate">
-              <span className="font-medium">{msg.user.name}:</span> {msg.content}
-            </p>
+            <div key={msg.id} className="flex items-center gap-2 text-xs text-muted-foreground truncate py-0.5">
+              <Avatar
+                name={msg.user.name}
+                src={msg.user.avatarUrl}
+                size="xs"
+                role={msg.user.role}
+              />
+              <span className="truncate">
+                <span className="font-medium">{msg.user.name}:</span> {msg.content}
+              </span>
+            </div>
           ))}
         </div>
       )}

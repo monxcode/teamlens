@@ -28,6 +28,7 @@ interface ChatMessageProps {
   onEdit: (messageId: string, content: string) => void;
   onDelete: (messageId: string) => void;
   onPin: (messageId: string) => void;
+  teamRoleMap?: Map<string, string>;
 }
 
 export function ChatMessage({
@@ -42,12 +43,14 @@ export function ChatMessage({
   onEdit,
   onDelete,
   onPin,
+  teamRoleMap,
 }: ChatMessageProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(msg.content);
   const [showActions, setShowActions] = useState(false);
 
   const isOnline = onlineUserIds.includes(msg.userId);
+  const msgTeamRole = teamRoleMap?.get(msg.userId);
   const readBy = msg.readReceipts
     .filter((r) => r.userId !== msg.userId)
     .map((r) => r.user.name);
@@ -86,12 +89,14 @@ export function ChatMessage({
           </div>
         </div>
       ) : (
-        <div className="relative shrink-0">
-          <Avatar name={msg.user.name} src={msg.user.avatarUrl} size="sm" />
-          {isOnline && (
-            <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-background" />
-          )}
-        </div>
+        <Avatar
+          name={msg.user.name}
+          src={msg.user.avatarUrl}
+          size="sm"
+          role={msg.user.role}
+          teamRole={msgTeamRole}
+          isOnline={isOnline}
+        />
       )}
 
       <div className="flex-1 min-w-0 space-y-0.5">
@@ -112,7 +117,9 @@ export function ChatMessage({
             onClick={() => {}}
             className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-0.5"
           >
-            <Reply className="h-3 w-3 rotate-180" />
+            <div className="relative shrink-0">
+              <Avatar name={msg.replyTo.user.name} src={msg.replyTo.user.avatarUrl} size="sm" role={msg.replyTo.user.role} teamRole={teamRoleMap?.get(msg.replyTo.user.id)} />
+            </div>
             <span className="truncate max-w-[200px]">
               Replying to <span className="font-medium">{msg.replyTo.user.name}</span>: {msg.replyTo.content}
             </span>

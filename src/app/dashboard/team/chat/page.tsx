@@ -12,7 +12,7 @@ import { ChatInput } from "@/components/chat/chat-input";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
 import { useChatSocket, ChatMessageData, TypingUser, OnlineUsers, ReadReceipt } from "@/hooks/use-chat-socket";
 import { formatRelativeTime } from "@/lib/utils";
-import { MessagesSquare, Users, Crown } from "lucide-react";
+import { MessagesSquare, Users } from "lucide-react";
 
 interface TeamMember {
   id: string;
@@ -84,6 +84,26 @@ export default function TeamChatPage() {
   const isAdmin = authUser?.role === "super_admin" || authUser?.role === "admin";
   const canModerate = isAdmin || isTeamLead;
   const canPin = canModerate;
+
+  const teamRoleMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (team) {
+      for (const member of team.members) {
+        map.set(member.user.id, member.role);
+      }
+    }
+    return map;
+  }, [team]);
+
+  const userRoleMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (team) {
+      for (const member of team.members) {
+        map.set(member.user.id, member.user.role);
+      }
+    }
+    return map;
+  }, [team]);
 
   const handlers = useMemo(
     () => ({
@@ -429,6 +449,7 @@ export default function TeamChatPage() {
                       onEdit={handleEdit}
                       onDelete={handleDelete}
                       onPin={handlePin}
+                      teamRoleMap={teamRoleMap}
                     />
                   </div>
                 );
@@ -437,7 +458,7 @@ export default function TeamChatPage() {
             </>
           )}
 
-          <TypingIndicator typingUsers={typingUsers} currentUserId={currentUserId} />
+          <TypingIndicator typingUsers={typingUsers} currentUserId={currentUserId} teamRoleMap={teamRoleMap} userRoleMap={userRoleMap} />
         </div>
 
         <ChatInput
@@ -445,6 +466,7 @@ export default function TeamChatPage() {
           onSend={handleSend}
           onCancelReply={() => setReplyTo(null)}
           onTyping={handleTyping}
+          teamRoleMap={teamRoleMap}
         />
       </div>
 
@@ -466,18 +488,17 @@ export default function TeamChatPage() {
                 key={member.id}
                 className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-muted/50 transition-colors"
               >
-                <div className="relative shrink-0">
-                  <Avatar name={member.user.name} src={member.user.avatarUrl} size="sm" />
-                  {isMemberOnline && (
-                    <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-background" />
-                  )}
-                </div>
+                <Avatar
+                  name={member.user.name}
+                  src={member.user.avatarUrl}
+                  size="sm"
+                  role={member.user.role}
+                  teamRole={member.role}
+                  isOnline={isMemberOnline}
+                />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate flex items-center gap-1.5">
+                  <p className="text-sm font-medium truncate">
                     {member.user.name}
-                    {member.role === "lead" && (
-                      <Crown className="h-3 w-3 text-amber-500 shrink-0" />
-                    )}
                   </p>
                 </div>
                 {member.role === "lead" && (

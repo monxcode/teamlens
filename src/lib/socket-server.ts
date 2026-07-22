@@ -138,7 +138,7 @@ export function initSocketServer(httpServer: HTTPServer) {
             replyTo: {
               include: {
                 user: {
-                  select: { id: true, name: true, email: true, avatarUrl: true },
+                  select: { id: true, name: true, email: true, avatarUrl: true, role: true },
                 },
               },
             },
@@ -179,7 +179,7 @@ export function initSocketServer(httpServer: HTTPServer) {
             replyTo: {
               include: {
                 user: {
-                  select: { id: true, name: true, email: true, avatarUrl: true },
+                  select: { id: true, name: true, email: true, avatarUrl: true, role: true },
                 },
               },
             },

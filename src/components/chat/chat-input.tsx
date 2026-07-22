@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { EmojiPicker } from "./emoji-picker";
+import { Avatar } from "@/components/ui/avatar";
 import { Reply, Smile, Send, X } from "lucide-react";
 import { ChatMessageData } from "@/hooks/use-chat-socket";
 
@@ -10,9 +11,10 @@ interface ChatInputProps {
   onSend: (content: string, replyToId?: string) => void;
   onCancelReply: () => void;
   onTyping: (isTyping: boolean) => void;
+  teamRoleMap?: Map<string, string>;
 }
 
-export function ChatInput({ replyTo, onSend, onCancelReply, onTyping }: ChatInputProps) {
+export function ChatInput({ replyTo, onSend, onCancelReply, onTyping, teamRoleMap }: ChatInputProps) {
   const [content, setContent] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -77,6 +79,9 @@ export function ChatInput({ replyTo, onSend, onCancelReply, onTyping }: ChatInpu
         <div className="flex items-center justify-between mb-2 px-3 py-2 rounded-lg bg-muted/50">
           <div className="flex items-center gap-2 min-w-0">
             <Reply className="h-3.5 w-3.5 text-muted-foreground shrink-0 rotate-180" />
+            <div className="relative shrink-0">
+              <Avatar name={replyTo.user.name} src={replyTo.user.avatarUrl} size="sm" role={replyTo.user.role} teamRole={teamRoleMap?.get(replyTo.user.id)} />
+            </div>
             <div className="min-w-0">
               <p className="text-xs font-medium text-muted-foreground">
                 Replying to <span className="text-foreground">{replyTo.user.name}</span>

@@ -44,7 +44,7 @@ export async function GET(
         replyTo: {
           include: {
             user: {
-              select: { id: true, name: true, email: true, avatarUrl: true },
+              select: { id: true, name: true, email: true, avatarUrl: true, role: true },
             },
           },
         },
@@ -52,9 +52,6 @@ export async function GET(
           include: {
             user: { select: { id: true, name: true } },
           },
-        },
-        pinner: {
-          select: { id: true, name: true },
         },
       },
       orderBy: { createdAt: "desc" },
@@ -138,7 +135,7 @@ export async function POST(
         replyTo: {
           include: {
             user: {
-              select: { id: true, name: true, email: true, avatarUrl: true },
+              select: { id: true, name: true, email: true, avatarUrl: true, role: true },
             },
           },
         },
