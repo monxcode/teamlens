@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { getInitials } from "@/lib/utils";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useId } from "react";
 import { Crown } from "lucide-react";
 
 interface AvatarProps {
@@ -61,6 +61,90 @@ function getColor(name: string) {
   return colors[Math.abs(hash) % colors.length];
 }
 
+function SuperAdminCrownAvatar({ uid }: { uid: string }) {
+  return (
+    <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
+      <defs>
+        <linearGradient id={`sa-bg-${uid}`} x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#1c1917" />
+          <stop offset="100%" stopColor="#292524" />
+        </linearGradient>
+        <linearGradient id={`sa-crown-${uid}`} x1="14" y1="16" x2="42" y2="36" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#fbbf24" />
+          <stop offset="50%" stopColor="#f59e0b" />
+          <stop offset="100%" stopColor="#d97706" />
+        </linearGradient>
+        <filter id={`sa-glow-${uid}`}>
+          <feGaussianBlur stdDeviation="1" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
+      <circle cx="28" cy="28" r="28" fill={`url(#sa-bg-${uid})`} />
+      <circle cx="28" cy="28" r="27" stroke="#fbbf24" strokeOpacity="0.15" strokeWidth="0.5" />
+      <g filter={`url(#sa-glow-${uid})`}>
+        <path
+          d="M15 34L17.5 20L22 26L28 17L34 26L38.5 20L41 34H15Z"
+          fill={`url(#sa-crown-${uid})`}
+        />
+        <path
+          d="M15 34L17.5 20L22 26L28 17L34 26L38.5 20L41 34H15Z"
+          stroke="#fde68a"
+          strokeWidth="0.5"
+          strokeOpacity="0.4"
+        />
+      </g>
+      <rect x="14" y="34" width="28" height="3" rx="1.5" fill={`url(#sa-crown-${uid})`} />
+      <circle cx="19.5" cy="35.5" r="0.8" fill="#fde68a" fillOpacity="0.7" />
+      <circle cx="28" cy="35.5" r="0.8" fill="#fde68a" fillOpacity="0.7" />
+      <circle cx="36.5" cy="35.5" r="0.8" fill="#fde68a" fillOpacity="0.7" />
+      <circle cx="22" cy="35.5" r="0.5" fill="#fef3c7" fillOpacity="0.5" />
+      <circle cx="34" cy="35.5" r="0.5" fill="#fef3c7" fillOpacity="0.5" />
+    </svg>
+  );
+}
+
+function AdminCrownAvatar({ uid }: { uid: string }) {
+  return (
+    <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
+      <defs>
+        <linearGradient id={`adm-bg-${uid}`} x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#18181b" />
+          <stop offset="100%" stopColor="#27272a" />
+        </linearGradient>
+        <linearGradient id={`adm-crown-${uid}`} x1="14" y1="16" x2="42" y2="36" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#e4e4e7" />
+          <stop offset="50%" stopColor="#d4d4d8" />
+          <stop offset="100%" stopColor="#a1a1aa" />
+        </linearGradient>
+        <filter id={`adm-glow-${uid}`}>
+          <feGaussianBlur stdDeviation="1" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
+      <circle cx="28" cy="28" r="28" fill={`url(#adm-bg-${uid})`} />
+      <circle cx="28" cy="28" r="27" stroke="#d4d4d8" strokeOpacity="0.15" strokeWidth="0.5" />
+      <g filter={`url(#adm-glow-${uid})`}>
+        <path
+          d="M15 34L17.5 20L22 26L28 17L34 26L38.5 20L41 34H15Z"
+          fill={`url(#adm-crown-${uid})`}
+        />
+        <path
+          d="M15 34L17.5 20L22 26L28 17L34 26L38.5 20L41 34H15Z"
+          stroke="#fafafa"
+          strokeWidth="0.5"
+          strokeOpacity="0.3"
+        />
+      </g>
+      <rect x="14" y="34" width="28" height="3" rx="1.5" fill={`url(#adm-crown-${uid})`} />
+      <circle cx="19.5" cy="35.5" r="0.8" fill="#fafafa" fillOpacity="0.5" />
+      <circle cx="28" cy="35.5" r="0.8" fill="#fafafa" fillOpacity="0.5" />
+      <circle cx="36.5" cy="35.5" r="0.8" fill="#fafafa" fillOpacity="0.5" />
+      <circle cx="22" cy="35.5" r="0.5" fill="#f4f4f5" fillOpacity="0.4" />
+      <circle cx="34" cy="35.5" r="0.5" fill="#f4f4f5" fillOpacity="0.4" />
+    </svg>
+  );
+}
+
 function getRoleBadge(role: string | null | undefined, teamRole?: string | null) {
   if (role === "super_admin") {
     return { icon: Crown, className: "text-yellow-400 drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]", label: "Super Admin" };
@@ -77,6 +161,7 @@ function getRoleBadge(role: string | null | undefined, teamRole?: string | null)
 function Avatar({ name, src, size = "md", className, role, teamRole, showBadge = true, isOnline }: AvatarProps) {
   const [imgError, setImgError] = useState(false);
   const prevSrcRef = useRef(src);
+  const uid = useId().replace(/:/g, "");
 
   useEffect(() => {
     if (prevSrcRef.current !== src) {
@@ -87,6 +172,8 @@ function Avatar({ name, src, size = "md", className, role, teamRole, showBadge =
 
   const cacheBustedSrc = src ? `${src}?v=${encodeURIComponent(src)}` : undefined;
   const showImage = cacheBustedSrc && !imgError;
+
+  const showCrownAvatar = !showImage && (role === "super_admin" || role === "admin");
 
   const badge = showBadge ? getRoleBadge(role, teamRole) : null;
   const BadgeIcon = badge?.icon;
@@ -101,7 +188,7 @@ function Avatar({ name, src, size = "md", className, role, teamRole, showBadge =
       <div
         className={cn(
           "flex h-full w-full items-center justify-center rounded-full font-medium text-white overflow-hidden",
-          !showImage && getColor(name)
+          !showImage && !showCrownAvatar && getColor(name)
         )}
       >
         {showImage ? (
@@ -111,12 +198,14 @@ function Avatar({ name, src, size = "md", className, role, teamRole, showBadge =
             className="h-full w-full object-cover"
             onError={() => setImgError(true)}
           />
+        ) : showCrownAvatar ? (
+          role === "super_admin" ? <SuperAdminCrownAvatar uid={uid} /> : <AdminCrownAvatar uid={uid} />
         ) : (
           getInitials(name)
         )}
       </div>
 
-      {BadgeIcon && (
+      {BadgeIcon && !showCrownAvatar && (
         <div
           className={cn(
             "absolute -bottom-0.5 -right-0.5 flex items-center justify-center rounded-full bg-background p-[1px] shadow-sm z-10",
