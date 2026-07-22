@@ -226,7 +226,7 @@ export default function TeamPage() {
             <div className="space-y-3">
               {myTeam.members.map((member) => (
                 <div key={member.id} className="flex items-center gap-3 py-2">
-                  <Avatar name={member.user.name} src={member.user.avatarUrl} size="sm" />
+                  <Avatar name={member.user.name} src={member.user.avatarUrl} size="sm" role={member.user.role} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{member.user.name}</p>
                     <p className="text-xs text-muted-foreground truncate">{member.user.email}</p>

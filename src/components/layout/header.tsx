@@ -199,7 +199,7 @@ export function Header() {
             onClick={() => setShowProfile(!showProfile)}
             className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors"
           >
-            <Avatar name={user?.name || "U"} src={user?.avatarUrl} size="sm" />
+            <Avatar name={user?.name || "U"} src={user?.avatarUrl} size="sm" role={user?.role} />
             <ChevronDown className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
           </button>
 

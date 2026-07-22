@@ -54,7 +54,7 @@ export default function AdminUserDetailPage() {
 
       <Card className="p-6">
         <div className="flex items-start gap-6">
-          <Avatar name={user.name} src={user.avatarUrl} size="xl" />
+          <Avatar name={user.name} src={user.avatarUrl} size="xl" role={user.role} />
           <div className="flex-1">
             <div className="flex items-center gap-3">
               <h2 className="text-xl font-bold">{user.name}</h2>

@@ -19,7 +19,7 @@ import Link from "next/link";
 interface TeamMember {
   id: string;
   role: string;
-  user: { id: string; name: string; email: string; avatarUrl: string | null };
+  user: { id: string; name: string; email: string; avatarUrl: string | null; role: string };
 }
 
 interface Team {
@@ -225,7 +225,7 @@ export default function AdminTeamsPage() {
                 <div className="mt-3 flex flex-wrap gap-1">
                   {team.members.slice(0, 5).map((m) => (
                     <div key={m.id} className="relative group">
-                      <Avatar name={m.user.name} src={m.user.avatarUrl} size="sm" className="ring-2 ring-background" />
+                      <Avatar name={m.user.name} src={m.user.avatarUrl} size="sm" className="ring-2 ring-background" role={m.user.role} />
                       {m.role === "lead" && <Crown className="absolute -top-1 -right-1 h-3 w-3 text-amber-500" />}
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-card border rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                         {m.user.name} ({m.role})

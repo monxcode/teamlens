@@ -3,12 +3,15 @@
 import { cn } from "@/lib/utils";
 import { getInitials } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
+import { Crown } from "lucide-react";
 
 interface AvatarProps {
   name: string;
   src?: string | null;
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
+  role?: string | null;
+  showBadge?: boolean;
 }
 
 const sizeClasses = {
@@ -16,6 +19,13 @@ const sizeClasses = {
   md: "h-9 w-9 text-xs",
   lg: "h-11 w-11 text-sm",
   xl: "h-14 w-14 text-base",
+};
+
+const badgeSizes = {
+  sm: "h-3 w-3",
+  md: "h-3.5 w-3.5",
+  lg: "h-4 w-4",
+  xl: "h-5 w-5",
 };
 
 const colors = [
@@ -39,11 +49,20 @@ function getColor(name: string) {
   return colors[Math.abs(hash) % colors.length];
 }
 
-function Avatar({ name, src, size = "md", className }: AvatarProps) {
+function getRoleBadge(role: string | null | undefined) {
+  if (role === "super_admin") {
+    return { icon: Crown, className: "text-yellow-400 drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]", label: "Super Admin" };
+  }
+  if (role === "admin") {
+    return { icon: Crown, className: "text-zinc-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]", label: "Admin" };
+  }
+  return null;
+}
+
+function Avatar({ name, src, size = "md", className, role, showBadge = true }: AvatarProps) {
   const [imgError, setImgError] = useState(false);
   const prevSrcRef = useRef(src);
 
-  // Reset imgError when src changes
   useEffect(() => {
     if (prevSrcRef.current !== src) {
       setImgError(false);
@@ -51,9 +70,11 @@ function Avatar({ name, src, size = "md", className }: AvatarProps) {
     }
   }, [src]);
 
-  // Add cache-busting query param to bust browser cache
   const cacheBustedSrc = src ? `${src}?v=${encodeURIComponent(src)}` : undefined;
   const showImage = cacheBustedSrc && !imgError;
+
+  const badge = showBadge ? getRoleBadge(role) : null;
+  const BadgeIcon = badge?.icon;
 
   return (
     <div
@@ -75,6 +96,18 @@ function Avatar({ name, src, size = "md", className }: AvatarProps) {
       ) : (
         getInitials(name)
       )}
+
+      {BadgeIcon && (
+        <div
+          className={cn(
+            "absolute -bottom-0.5 -right-0.5 flex items-center justify-center rounded-full bg-background p-[1px] shadow-sm",
+            badgeSizes[size]
+          )}
+          title={badge?.label}
+        >
+          <BadgeIcon className={cn("h-full w-full", badge?.className)} />
+        </div>
+      )}
     </div>
   );
 }
@@ -85,9 +118,10 @@ interface AvatarGroupProps {
   size?: "sm" | "md" | "lg";
   className?: string;
   srcs?: (string | null | undefined)[];
+  roles?: (string | null | undefined)[];
 }
 
-function AvatarGroup({ names, max = 3, size = "sm", className, srcs }: AvatarGroupProps) {
+function AvatarGroup({ names, max = 3, size = "sm", className, srcs, roles }: AvatarGroupProps) {
   const shown = names.slice(0, max);
   const remaining = names.length - max;
 
@@ -99,6 +133,7 @@ function AvatarGroup({ names, max = 3, size = "sm", className, srcs }: AvatarGro
           name={name}
           src={srcs?.[i]}
           size={size}
+          role={roles?.[i] || null}
           className="ring-2 ring-background"
         />
       ))}

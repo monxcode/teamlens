@@ -85,7 +85,7 @@ export async function GET(
     const activities = await db.activity.findMany({
       where: { userId: { in: memberUserIds } },
       include: {
-        user: { select: { id: true, name: true, avatarUrl: true } },
+        user: { select: { id: true, name: true, avatarUrl: true, role: true } },
         task: { select: { id: true, title: true } },
       },
       orderBy: { createdAt: "desc" },

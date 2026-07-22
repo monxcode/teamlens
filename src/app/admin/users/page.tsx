@@ -238,7 +238,7 @@ export default function AdminUsersPage() {
                   checked={selectedUsers.includes(user.id)}
                   onCheckedChange={() => toggleSelect(user.id)}
                 />
-                <Avatar name={user.name} src={user.avatarUrl} size="md" />
+                <Avatar name={user.name} src={user.avatarUrl} size="md" role={user.role} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <Link href={`/admin/users/${user.id}`} className="text-sm font-semibold hover:underline">{user.name}</Link>

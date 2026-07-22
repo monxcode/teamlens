@@ -18,7 +18,7 @@ import Link from "next/link";
 interface MemberStats {
   id: string;
   role: string;
-  user: { id: string; name: string; email: string; avatarUrl: string | null; lastLoginAt: string | null };
+  user: { id: string; name: string; email: string; avatarUrl: string | null; role: string; lastLoginAt: string | null };
   stats: { totalTasks: number; completedTasks: number; pendingTasks: number; overdueTasks: number; efficiency: number };
   lastActivity: { time: string; details: string } | null;
 }
@@ -57,7 +57,7 @@ interface Activity {
   type: string;
   details: string | null;
   createdAt: string;
-  user: { id: string; name: string; avatarUrl: string | null };
+  user: { id: string; name: string; avatarUrl: string | null; role: string };
   task: { id: string; title: string } | null;
 }
 
@@ -277,7 +277,7 @@ export default function TeamDetailPage() {
               <div className="space-y-3">
                 {activities.slice(0, 8).map((a) => (
                   <div key={a.id} className="flex gap-3">
-                    <Avatar name={a.user.name} src={a.user.avatarUrl} size="sm" />
+                    <Avatar name={a.user.name} src={a.user.avatarUrl} size="sm" role={a.user.role} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm"><span className="font-medium">{a.user.name}</span> <span className="text-muted-foreground">{a.details}</span></p>
                       <p className="text-xs text-muted-foreground">{formatRelativeTime(a.createdAt)}</p>
@@ -296,7 +296,7 @@ export default function TeamDetailPage() {
           {team.members.map((m) => (
             <Card key={m.id} className="p-4">
               <div className="flex items-center gap-4">
-                <Avatar name={m.user.name} src={m.user.avatarUrl} size="lg" />
+                <Avatar name={m.user.name} src={m.user.avatarUrl} size="lg" role={m.user.role} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold">{m.user.name}</h3>
@@ -387,7 +387,7 @@ export default function TeamDetailPage() {
           {activities.map((a) => (
             <Card key={a.id} className="p-4">
               <div className="flex items-center gap-3">
-                <Avatar name={a.user.name} src={a.user.avatarUrl} size="sm" />
+                <Avatar name={a.user.name} src={a.user.avatarUrl} size="sm" role={a.user.role} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm"><span className="font-medium">{a.user.name}</span> <span className="text-muted-foreground">{a.details}</span></p>
                   <div className="flex items-center gap-2 mt-0.5">

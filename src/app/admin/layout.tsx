@@ -128,7 +128,7 @@ function AdminHeader({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; setMo
         <button onClick={handleLogout} className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-muted text-destructive">
           <LogOut className="h-4.5 w-4.5" />
         </button>
-        <Avatar name={user?.name || "A"} src={user?.avatarUrl} size="sm" />
+        <Avatar name={user?.name || "A"} src={user?.avatarUrl} size="sm" role={user?.role} />
       </div>
     </header>
   );

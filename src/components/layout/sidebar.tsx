@@ -10,6 +10,7 @@ import {
   FolderKanban,
   CheckSquare,
   Users,
+  MessageSquare,
   Settings,
   Zap,
   ChevronLeft,
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/dashboard/projects", label: "Projects", icon: FolderKanban },
   { href: "/dashboard/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/dashboard/team", label: "Team", icon: Users },
+  { href: "/dashboard/team/chat", label: "Team Chat", icon: MessageSquare },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
