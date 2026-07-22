@@ -55,7 +55,7 @@ export default function AdminUsersPage() {
     if (filterStatus !== "all") params.set("status", filterStatus);
     if (filterRole !== "all") params.set("role", filterRole);
     if (search) params.set("search", search);
-    const res = await fetch(`/api/admin/users?${params}`, { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch(`/api/admin/users?${params}`, { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setUsers(data.users || []);
     setTotalPages(data.totalPages || 1);
@@ -64,13 +64,13 @@ export default function AdminUsersPage() {
   }
 
   async function fetchRoles() {
-    const res = await fetch("/api/admin/roles", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch("/api/admin/roles", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setRoles(data.roles || []);
   }
 
   async function fetchTeams() {
-    const res = await fetch("/api/admin/teams", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch("/api/admin/teams", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setTeams((data.teams || []).map((t: Team) => ({ id: t.id, name: t.name })));
   }
@@ -80,7 +80,7 @@ export default function AdminUsersPage() {
     setCreating(true);
     const res = await fetch("/api/admin/users", {
       method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify(newUser),
     });
     if (res.ok) { setShowCreateModal(false); setNewUser({ name: "", email: "", password: "", role: "member" }); fetchUsers(); }
@@ -90,7 +90,7 @@ export default function AdminUsersPage() {
   async function suspendUser(userId: string, suspend: boolean) {
     await fetch(`/api/admin/users/${userId}/suspend`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ suspend }),
     });
     fetchUsers();
@@ -99,7 +99,7 @@ export default function AdminUsersPage() {
 
   async function deleteUser(userId: string) {
     if (!confirm("Are you sure you want to delete this user?")) return;
-    await fetch(`/api/admin/users/${userId}`, { method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    await fetch(`/api/admin/users/${userId}`, { method: "DELETE", headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     fetchUsers();
     setActionMenu(null);
   }
@@ -110,13 +110,13 @@ export default function AdminUsersPage() {
     if (bulkAction === "delete") {
       if (!confirm(`Delete ${selectedUsers.length} users?`)) return;
       for (const userId of selectedUsers) {
-        await fetch(`/api/admin/users/${userId}`, { method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+        await fetch(`/api/admin/users/${userId}`, { method: "DELETE", headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
       }
     } else if (bulkAction === "suspend") {
       for (const userId of selectedUsers) {
         await fetch(`/api/admin/users/${userId}/suspend`, {
           method: "PATCH",
-          headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+          headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
           body: JSON.stringify({ suspend: true }),
         });
       }
@@ -124,7 +124,7 @@ export default function AdminUsersPage() {
       for (const userId of selectedUsers) {
         await fetch(`/api/admin/users/${userId}/suspend`, {
           method: "PATCH",
-          headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+          headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
           body: JSON.stringify({ suspend: false }),
         });
       }
@@ -132,7 +132,7 @@ export default function AdminUsersPage() {
       for (const userId of selectedUsers) {
         await fetch(`/api/admin/users/${userId}/role`, {
           method: "PATCH",
-          headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+          headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
           body: JSON.stringify({ roleId: bulkValue }),
         });
       }
@@ -140,7 +140,7 @@ export default function AdminUsersPage() {
       for (const userId of selectedUsers) {
         await fetch(`/api/admin/teams/${bulkValue}/members`, {
           method: "POST",
-          headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+          headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
           body: JSON.stringify({ userId }),
         });
       }

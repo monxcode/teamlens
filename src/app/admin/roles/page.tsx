@@ -31,14 +31,14 @@ export default function AdminRolesPage() {
   useEffect(() => { fetchRoles(); fetchPermissions(); }, []);
 
   async function fetchRoles() {
-    const res = await fetch("/api/admin/roles", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch("/api/admin/roles", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setRoles(data.roles || []);
     setLoading(false);
   }
 
   async function fetchPermissions() {
-    const res = await fetch("/api/admin/permissions", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch("/api/admin/permissions", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setPermissions(data.permissions || []);
   }
@@ -48,7 +48,7 @@ export default function AdminRolesPage() {
     setCreating(true);
     const res = await fetch("/api/admin/roles", {
       method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify(newRole),
     });
     if (res.ok) { setShowCreateModal(false); setNewRole({ name: "", description: "" }); fetchRoles(); }
@@ -57,7 +57,7 @@ export default function AdminRolesPage() {
 
   async function deleteRole(id: string) {
     if (!confirm("Delete this role?")) return;
-    await fetch(`/api/admin/roles/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    await fetch(`/api/admin/roles/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     fetchRoles();
   }
 
@@ -65,7 +65,7 @@ export default function AdminRolesPage() {
     if (!selectedRole) return;
     await fetch(`/api/admin/roles/${selectedRole.id}/permissions`, {
       method: "PUT",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ permissionIds: selectedPerms }),
     });
     setShowPermModal(false);

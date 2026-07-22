@@ -71,7 +71,7 @@ export default function TeamPage() {
 
   async function fetchTeamData() {
     try {
-      const token = localStorage.getItem("pulse_token");
+      const token = sessionStorage.getItem("pulse_token");
       const res = await fetch("/api/teams", {
         headers: { Authorization: `Bearer ${token}` },
       });

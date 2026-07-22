@@ -18,7 +18,7 @@ export default function AdminWorkspacesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/workspaces", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } })
+    fetch("/api/admin/workspaces", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } })
       .then((r) => r.json())
       .then((d) => { setWorkspaces(d.workspaces || []); setLoading(false); });
   }, []);

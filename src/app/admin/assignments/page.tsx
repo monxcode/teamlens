@@ -72,7 +72,7 @@ export default function AdminAssignmentsPage() {
   async function fetchAssignments() {
     setLoading(true);
     const res = await fetch("/api/admin/assignments", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     });
     const data = await res.json();
     setAssignments(data.assignments || []);
@@ -81,7 +81,7 @@ export default function AdminAssignmentsPage() {
 
   async function fetchTeams() {
     const res = await fetch("/api/admin/teams", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     });
     const data = await res.json();
     setTeams(data.teams || []);
@@ -89,7 +89,7 @@ export default function AdminAssignmentsPage() {
 
   async function fetchProjects() {
     const res = await fetch("/api/admin/projects?limit=100", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     });
     const data = await res.json();
     setProjects(data.projects || []);
@@ -97,7 +97,7 @@ export default function AdminAssignmentsPage() {
 
   async function fetchTasks() {
     const res = await fetch("/api/admin/tasks?limit=100", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     });
     const data = await res.json();
     setTasks(data.tasks || []);
@@ -117,7 +117,7 @@ export default function AdminAssignmentsPage() {
     const res = await fetch("/api/admin/assignments", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("pulse_token")}`,
+        Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
@@ -137,7 +137,7 @@ export default function AdminAssignmentsPage() {
 
     await fetch(`/api/admin/assignments?id=${assignmentId}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     });
     fetchAssignments();
   }

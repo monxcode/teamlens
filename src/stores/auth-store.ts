@@ -36,20 +36,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setUser: (user) => {
     set({ user });
-    // Persist user to localStorage so it survives checkAuth re-fetches
     if (user) {
-      localStorage.setItem("pulse_user", JSON.stringify(user));
+      sessionStorage.setItem("pulse_user", JSON.stringify(user));
     } else {
-      localStorage.removeItem("pulse_user");
+      sessionStorage.removeItem("pulse_user");
     }
   },
 
   setToken: (token) => {
     set({ token });
     if (token) {
-      localStorage.setItem("pulse_token", token);
+      sessionStorage.setItem("pulse_token", token);
     } else {
-      localStorage.removeItem("pulse_token");
+      sessionStorage.removeItem("pulse_token");
     }
   },
 
@@ -63,8 +62,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const data = await res.json();
       if (!res.ok) return { error: data.error };
       set({ user: data.user, token: data.token });
-      localStorage.setItem("pulse_token", data.token);
-      localStorage.setItem("pulse_user", JSON.stringify(data.user));
+      sessionStorage.setItem("pulse_token", data.token);
+      sessionStorage.setItem("pulse_user", JSON.stringify(data.user));
       return { forcePasswordReset: data.user.forcePasswordReset };
     } catch {
       return { error: "Network error. Please try again." };
@@ -81,8 +80,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const data = await res.json();
       if (!res.ok) return { error: data.error };
       set({ user: data.user, token: data.token });
-      localStorage.setItem("pulse_token", data.token);
-      localStorage.setItem("pulse_user", JSON.stringify(data.user));
+      sessionStorage.setItem("pulse_token", data.token);
+      sessionStorage.setItem("pulse_user", JSON.stringify(data.user));
       return {};
     } catch {
       return { error: "Network error. Please try again." };
@@ -91,19 +90,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: () => {
     set({ user: null, token: null });
-    localStorage.removeItem("pulse_token");
-    localStorage.removeItem("pulse_user");
+    sessionStorage.removeItem("pulse_token");
+    sessionStorage.removeItem("pulse_user");
   },
 
   checkAuth: async () => {
-    const token = localStorage.getItem("pulse_token");
+    const token = sessionStorage.getItem("pulse_token");
     if (!token) {
       set({ isLoading: false });
       return;
     }
 
-    // First, load cached user from localStorage for instant display
-    const cachedUser = localStorage.getItem("pulse_user");
+    // First, load cached user from sessionStorage for instant display
+    const cachedUser = sessionStorage.getItem("pulse_user");
     if (cachedUser) {
       try {
         const parsed = JSON.parse(cachedUser);
@@ -119,23 +118,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
-        localStorage.removeItem("pulse_token");
-        localStorage.removeItem("pulse_user");
+        sessionStorage.removeItem("pulse_token");
+        sessionStorage.removeItem("pulse_user");
         set({ isLoading: false, user: null });
         return;
       }
       const data = await res.json();
       set({ user: data.user, token, isLoading: false });
-      localStorage.setItem("pulse_user", JSON.stringify(data.user));
+      sessionStorage.setItem("pulse_user", JSON.stringify(data.user));
     } catch {
-      localStorage.removeItem("pulse_token");
-      localStorage.removeItem("pulse_user");
+      sessionStorage.removeItem("pulse_token");
+      sessionStorage.removeItem("pulse_user");
       set({ isLoading: false, user: null });
     }
   },
 
   refreshUser: async () => {
-    const token = localStorage.getItem("pulse_token");
+    const token = sessionStorage.getItem("pulse_token");
     if (!token) return;
     try {
       const res = await fetch("/api/auth/me", {
@@ -144,7 +143,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (res.ok) {
         const data = await res.json();
         set({ user: data.user });
-        localStorage.setItem("pulse_user", JSON.stringify(data.user));
+        sessionStorage.setItem("pulse_user", JSON.stringify(data.user));
       }
     } catch {
       // silently fail

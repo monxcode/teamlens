@@ -17,7 +17,7 @@ export default function AdminHealthPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/health", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } })
+    fetch("/api/admin/health", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } })
       .then((r) => r.json())
       .then(setHealth)
       .finally(() => setLoading(false));

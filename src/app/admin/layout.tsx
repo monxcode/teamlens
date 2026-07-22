@@ -149,7 +149,7 @@ function AdminAuthCheck({ children }: { children: React.ReactNode }) {
     }
 
     // Check if user has admin role and password status
-    const token = localStorage.getItem("pulse_token");
+    const token = sessionStorage.getItem("pulse_token");
     fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((data) => {

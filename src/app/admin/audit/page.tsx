@@ -34,7 +34,7 @@ export default function AdminAuditPage() {
     const params = new URLSearchParams({ page: String(page), limit: "30" });
     if (filterAction !== "all") params.set("action", filterAction);
     if (filterResource !== "all") params.set("resource", filterResource);
-    const res = await fetch(`/api/admin/audit?${params}`, { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch(`/api/admin/audit?${params}`, { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setLogs(data.logs || []);
     setTotalPages(data.totalPages || 1);

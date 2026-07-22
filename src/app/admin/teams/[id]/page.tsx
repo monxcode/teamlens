@@ -111,7 +111,7 @@ export default function TeamDetailPage() {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/teams/${params.id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+        headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
       });
       if (!res.ok) { router.push("/admin/teams"); return; }
       const data = await res.json();
@@ -126,7 +126,7 @@ export default function TeamDetailPage() {
   }
 
   async function fetchUsers() {
-    const res = await fetch("/api/admin/users?limit=100", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch("/api/admin/users?limit=100", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setUsers(data.users || []);
   }
@@ -135,7 +135,7 @@ export default function TeamDetailPage() {
     if (!addingUserId) return;
     await fetch(`/api/admin/teams/${params.id}/members`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ userId: addingUserId }),
     });
     setShowAddMember(false);
@@ -148,7 +148,7 @@ export default function TeamDetailPage() {
     if (!confirm("Remove this member from the team?")) return;
     await fetch(`/api/admin/teams/${params.id}/members?teamId=${params.id}&userId=${userId}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     });
     fetchTeamData();
   }
@@ -157,7 +157,7 @@ export default function TeamDetailPage() {
     const newRole = currentRole === "lead" ? "member" : "lead";
     await fetch(`/api/admin/teams/${params.id}/members`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ userId, teamId: params.id, role: newRole }),
     });
     fetchTeamData();

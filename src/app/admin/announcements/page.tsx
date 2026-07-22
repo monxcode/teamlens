@@ -27,7 +27,7 @@ export default function AdminAnnouncementsPage() {
   useEffect(() => { fetchAnnouncements(); }, []);
 
   async function fetchAnnouncements() {
-    const res = await fetch("/api/admin/announcements", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch("/api/admin/announcements", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setAnnouncements(data.announcements || []);
     setLoading(false);
@@ -38,7 +38,7 @@ export default function AdminAnnouncementsPage() {
     setCreating(true);
     const res = await fetch("/api/admin/announcements", {
       method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify(newAnnouncement),
     });
     if (res.ok) { setShowCreate(false); setNewAnnouncement({ title: "", message: "", type: "info" }); fetchAnnouncements(); }

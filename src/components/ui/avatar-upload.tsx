@@ -136,7 +136,7 @@ export function AvatarUpload({
       const fileName = `avatar.${ext}`;
       formData.append("file", new File([croppedBlob], fileName, { type: "image/jpeg" }));
 
-      const token = localStorage.getItem("pulse_token");
+      const token = sessionStorage.getItem("pulse_token");
       const res = await fetch("/api/user/avatar", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -168,7 +168,7 @@ export function AvatarUpload({
     if (!confirm("Remove your profile picture?")) return;
 
     try {
-      const token = localStorage.getItem("pulse_token");
+      const token = sessionStorage.getItem("pulse_token");
       const res = await fetch("/api/user/avatar", {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },

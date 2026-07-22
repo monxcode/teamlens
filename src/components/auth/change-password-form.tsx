@@ -40,7 +40,7 @@ export function ChangePasswordForm() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("pulse_token");
+      const token = sessionStorage.getItem("pulse_token");
       const res = await fetch("/api/auth/change-password", {
         method: "POST",
         headers: {

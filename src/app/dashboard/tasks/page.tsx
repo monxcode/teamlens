@@ -76,7 +76,7 @@ export default function TasksPage() {
 
   async function fetchTasks() {
     try {
-      const token = localStorage.getItem("pulse_token");
+      const token = sessionStorage.getItem("pulse_token");
       const res = await fetch("/api/tasks", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -91,7 +91,7 @@ export default function TasksPage() {
 
   async function fetchProjects() {
     try {
-      const token = localStorage.getItem("pulse_token");
+      const token = sessionStorage.getItem("pulse_token");
       const res = await fetch("/api/projects", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -112,7 +112,7 @@ export default function TasksPage() {
     e.preventDefault();
     setCreating(true);
     try {
-      const token = localStorage.getItem("pulse_token");
+      const token = sessionStorage.getItem("pulse_token");
       const res = await fetch("/api/tasks", {
         method: "POST",
         headers: {
@@ -134,7 +134,7 @@ export default function TasksPage() {
 
   async function updateTaskStatus(taskId: string, status: string) {
     try {
-      const token = localStorage.getItem("pulse_token");
+      const token = sessionStorage.getItem("pulse_token");
       await fetch(`/api/tasks/${taskId}`, {
         method: "PATCH",
         headers: {

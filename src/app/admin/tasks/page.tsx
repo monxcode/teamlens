@@ -72,7 +72,7 @@ export default function AdminTasksPage() {
     if (filterPriority !== "all") params.set("priority", filterPriority);
     if (filterAssignee !== "all") params.set("assigneeId", filterAssignee);
     if (search) params.set("search", search);
-    const res = await fetch(`/api/admin/tasks?${params}`, { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch(`/api/admin/tasks?${params}`, { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setTasks(data.tasks || []);
     setTotalPages(data.totalPages || 1);
@@ -80,13 +80,13 @@ export default function AdminTasksPage() {
   }
 
   async function fetchUsers() {
-    const res = await fetch("/api/admin/users?limit=100", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch("/api/admin/users?limit=100", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setUsers(data.users || []);
   }
 
   async function fetchProjects() {
-    const res = await fetch("/api/admin/projects?limit=100", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch("/api/admin/projects?limit=100", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setProjects(data.projects || []);
   }
@@ -103,7 +103,7 @@ export default function AdminTasksPage() {
     setCreating(true);
     const res = await fetch("/api/admin/tasks", {
       method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ ...newTask, dueDate: newTask.dueDate || undefined }),
     });
     if (res.ok) {
@@ -119,7 +119,7 @@ export default function AdminTasksPage() {
     setUpdating(true);
     const res = await fetch(`/api/admin/tasks/${editTask.id}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ ...editData, assigneeId: editData.assigneeId || null, dueDate: editData.dueDate || null }),
     });
     if (res.ok) { setShowEditModal(false); fetchTasks(); }
@@ -130,7 +130,7 @@ export default function AdminTasksPage() {
     if (!assignTask || !assignUserId) return;
     await fetch(`/api/admin/tasks/${assignTask.id}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ assigneeId: assignUserId }),
     });
     setShowAssignModal(false);
@@ -141,7 +141,7 @@ export default function AdminTasksPage() {
   async function removeAssignment(taskId: string) {
     await fetch(`/api/admin/tasks/${taskId}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ assigneeId: null }),
     });
     setActionMenu(null);
@@ -150,7 +150,7 @@ export default function AdminTasksPage() {
 
   async function deleteTask(id: string) {
     if (!confirm("Delete this task?")) return;
-    await fetch(`/api/admin/tasks/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    await fetch(`/api/admin/tasks/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     setActionMenu(null);
     fetchTasks();
   }

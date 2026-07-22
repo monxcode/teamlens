@@ -21,7 +21,7 @@ export default function AdminFeatureFlagsPage() {
   useEffect(() => { fetchFlags(); }, []);
 
   async function fetchFlags() {
-    const res = await fetch("/api/admin/feature-flags", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch("/api/admin/feature-flags", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setFlags(data.flags || []);
     setLoading(false);
@@ -30,7 +30,7 @@ export default function AdminFeatureFlagsPage() {
   async function toggleFlag(id: string, enabled: boolean) {
     await fetch(`/api/admin/feature-flags/${id}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ enabled }),
     });
     fetchFlags();
@@ -41,7 +41,7 @@ export default function AdminFeatureFlagsPage() {
     setCreating(true);
     const res = await fetch("/api/admin/feature-flags", {
       method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify(newFlag),
     });
     if (res.ok) { setShowCreate(false); setNewFlag({ name: "", description: "" }); fetchFlags(); }
@@ -50,7 +50,7 @@ export default function AdminFeatureFlagsPage() {
 
   async function deleteFlag(id: string) {
     if (!confirm("Delete this feature flag?")) return;
-    await fetch(`/api/admin/feature-flags/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    await fetch(`/api/admin/feature-flags/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     fetchFlags();
   }
 

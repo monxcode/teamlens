@@ -31,7 +31,7 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetch("/api/admin/analytics", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     })
       .then((r) => r.json())
       .then(setData)

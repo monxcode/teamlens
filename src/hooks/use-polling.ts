@@ -78,7 +78,7 @@ export function useAuthenticatedPolling<T>(
   const { interval = 30000, enabled = true, onError } = options;
 
   const fetcher = useCallback(async (): Promise<T> => {
-    const token = localStorage.getItem("pulse_token");
+    const token = sessionStorage.getItem("pulse_token");
     const res = await fetch(url, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });

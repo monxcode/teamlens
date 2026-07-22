@@ -26,7 +26,7 @@ export default function AdminLoginHistoryPage() {
   async function fetchHistory() {
     setLoading(true);
     const res = await fetch(`/api/admin/login-history?page=${page}&limit=50`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     });
     const data = await res.json();
     setHistory(data.history || []);

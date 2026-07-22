@@ -12,7 +12,7 @@ export default function AdminPermissionsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/permissions", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } })
+    fetch("/api/admin/permissions", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } })
       .then((r) => r.json())
       .then((d) => { setPermissions(d.permissions || []); setLoading(false); });
   }, []);

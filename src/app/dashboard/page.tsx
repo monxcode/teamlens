@@ -37,7 +37,7 @@ interface DashboardData {
 
 export default function DashboardPage() {
   const fetcher = useCallback(async (): Promise<DashboardData> => {
-    const token = localStorage.getItem("pulse_token");
+    const token = sessionStorage.getItem("pulse_token");
     const headers = { Authorization: `Bearer ${token}` };
 
     const [projectsRes, tasksRes, teamRes, activitiesRes] = await Promise.all([

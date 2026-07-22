@@ -14,7 +14,7 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/admin/settings", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } })
+    fetch("/api/admin/settings", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } })
       .then((r) => r.json())
       .then((d) => { setGrouped(d.grouped || {}); setLoading(false); });
   }, []);
@@ -23,7 +23,7 @@ export default function AdminSettingsPage() {
     setSaving(id);
     await fetch(`/api/admin/settings/${id}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ value }),
     });
     setSaving(null);

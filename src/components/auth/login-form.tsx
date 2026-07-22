@@ -31,7 +31,7 @@ export function LoginForm() {
       router.push("/change-password");
     } else {
       const meRes = await fetch("/api/auth/me", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+        headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
       });
       const meData = await meRes.json();
       if (meData.user && (meData.user.role === "super_admin" || meData.user.role === "admin")) {

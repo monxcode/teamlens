@@ -33,7 +33,7 @@ export default function AdminProjectsPage() {
     const params = new URLSearchParams({ page: String(page), limit: "20" });
     if (filterStatus !== "all") params.set("status", filterStatus);
     if (search) params.set("search", search);
-    const res = await fetch(`/api/admin/projects?${params}`, { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    const res = await fetch(`/api/admin/projects?${params}`, { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     const data = await res.json();
     setProjects(data.projects || []);
     setTotalPages(data.totalPages || 1);
@@ -43,7 +43,7 @@ export default function AdminProjectsPage() {
   async function updateStatus(id: string, status: string) {
     await fetch(`/api/admin/projects/${id}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
     fetchProjects();
@@ -51,7 +51,7 @@ export default function AdminProjectsPage() {
 
   async function deleteProject(id: string) {
     if (!confirm("Delete this project?")) return;
-    await fetch(`/api/admin/projects/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } });
+    await fetch(`/api/admin/projects/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } });
     fetchProjects();
   }
 

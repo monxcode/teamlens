@@ -54,7 +54,7 @@ export function Header() {
 
   async function fetchNotifications() {
     try {
-      const token = localStorage.getItem("pulse_token");
+      const token = sessionStorage.getItem("pulse_token");
       const res = await fetch("/api/notifications", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -68,7 +68,7 @@ export function Header() {
 
   async function markAllRead() {
     try {
-      const token = localStorage.getItem("pulse_token");
+      const token = sessionStorage.getItem("pulse_token");
       await fetch("/api/notifications", {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
@@ -80,7 +80,7 @@ export function Header() {
 
   async function clearAll() {
     try {
-      const token = localStorage.getItem("pulse_token");
+      const token = sessionStorage.getItem("pulse_token");
       const res = await fetch("/api/notifications", {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },

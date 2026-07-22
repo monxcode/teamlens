@@ -27,7 +27,7 @@ export default function AdminUserDetailPage() {
 
   useEffect(() => {
     fetch(`/api/admin/users/${params.id}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     })
       .then((r) => r.json())
       .then((d) => setUser(d.user))

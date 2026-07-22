@@ -60,7 +60,7 @@ export default function AdminTeamsPage() {
   async function fetchTeams() {
     setLoading(true);
     const res = await fetch("/api/admin/teams", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     });
     const data = await res.json();
     setTeams(data.teams || []);
@@ -69,7 +69,7 @@ export default function AdminTeamsPage() {
 
   async function fetchUsers() {
     const res = await fetch("/api/admin/users?limit=100", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     });
     const data = await res.json();
     setUsers(data.users || []);
@@ -80,7 +80,7 @@ export default function AdminTeamsPage() {
     setCreating(true);
     const res = await fetch("/api/admin/teams", {
       method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify(newTeam),
     });
     if (res.ok) {
@@ -95,7 +95,7 @@ export default function AdminTeamsPage() {
     if (!selectedTeam) return;
     await fetch(`/api/admin/teams/${selectedTeam.id}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify(editTeam),
     });
     setShowEditModal(false);
@@ -105,7 +105,7 @@ export default function AdminTeamsPage() {
   async function archiveTeam(id: string, status: string) {
     await fetch(`/api/admin/teams/${id}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ status: status === "active" ? "archived" : "active" }),
     });
     setActionMenu(null);
@@ -116,7 +116,7 @@ export default function AdminTeamsPage() {
     if (!confirm("Delete this team? Members will be removed.")) return;
     await fetch(`/api/admin/teams/${id}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     });
     setActionMenu(null);
     fetchTeams();
@@ -126,7 +126,7 @@ export default function AdminTeamsPage() {
     if (!selectedTeam || !addingUserId) return;
     await fetch(`/api/admin/teams/${selectedTeam.id}/members`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ userId: addingUserId }),
     });
     setShowAddMemberModal(false);
@@ -138,7 +138,7 @@ export default function AdminTeamsPage() {
     if (!confirm("Remove this member from the team?")) return;
     await fetch(`/api/admin/teams/${teamId}/members?teamId=${teamId}&userId=${userId}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` },
     });
     fetchTeams();
   }
@@ -147,7 +147,7 @@ export default function AdminTeamsPage() {
     const newRole = currentRole === "lead" ? "member" : "lead";
     await fetch(`/api/admin/teams/${teamId}/members`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ userId, teamId, role: newRole }),
     });
     fetchTeams();

@@ -19,7 +19,7 @@ export default function AdminAnalyticsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/analytics", { headers: { Authorization: `Bearer ${localStorage.getItem("pulse_token")}` } })
+    fetch("/api/admin/analytics", { headers: { Authorization: `Bearer ${sessionStorage.getItem("pulse_token")}` } })
       .then((r) => r.json())
       .then(setData)
       .finally(() => setLoading(false));
