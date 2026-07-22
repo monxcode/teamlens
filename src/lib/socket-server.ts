@@ -12,9 +12,25 @@ interface AuthPayload {
 }
 
 const onlineUsers = new Map<string, Set<string>>();
+let ioInstance: Server | null = null;
 
 function getOnlineUserIds(teamId: string): string[] {
   return Array.from(onlineUsers.get(teamId) || []);
+}
+
+export function broadcastToUser(userId: string, event: string, data: unknown) {
+  if (!ioInstance) return;
+  for (const [socketId, socket] of ioInstance.sockets.sockets) {
+    const user = (socket as any).user as AuthPayload | undefined;
+    if (user?.userId === userId) {
+      socket.emit(event, data);
+    }
+  }
+}
+
+export function broadcastToAll(event: string, data: unknown) {
+  if (!ioInstance) return;
+  ioInstance.emit(event, data);
 }
 
 export function initSocketServer(httpServer: HTTPServer) {
@@ -25,6 +41,7 @@ export function initSocketServer(httpServer: HTTPServer) {
     },
     transports: ["websocket", "polling"],
   });
+  ioInstance = io;
 
   io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
@@ -262,6 +279,20 @@ export function initSocketServer(httpServer: HTTPServer) {
       } catch (error) {
         console.error("Chat pin error:", error);
         socket.emit("chat:error", { message: "Failed to pin message" });
+      }
+    });
+
+    socket.on("announcement:read", async ({ announcementId }: { announcementId: string }) => {
+      if (!announcementId) return;
+      try {
+        await db.announcementRead.upsert({
+          where: { announcementId_userId: { announcementId, userId: user.userId } },
+          update: { readAt: new Date() },
+          create: { announcementId, userId: user.userId },
+        });
+        socket.emit("announcement:read-ack", { announcementId });
+      } catch (error) {
+        console.error("Announcement read error:", error);
       }
     });
 

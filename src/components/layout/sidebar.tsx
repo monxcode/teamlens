@@ -16,6 +16,7 @@ import {
   Zap,
   ChevronLeft,
   X,
+  Megaphone,
 } from "lucide-react";
 
 const allNavItems = [
@@ -24,6 +25,7 @@ const allNavItems = [
   { href: "/dashboard/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/dashboard/team", label: "Team", icon: Users },
   { href: "/dashboard/team/chat", label: "Team Chat", icon: MessageSquare },
+  { href: "/dashboard/announcements", label: "Announcements", icon: Megaphone, showBadge: true },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
@@ -32,6 +34,7 @@ export function Sidebar() {
   const { isOpen, isMobileOpen, toggle, setMobileOpen } = useSidebarStore();
   const { token } = useAuthStore();
   const [hasTeam, setHasTeam] = useState(false);
+  const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -43,6 +46,11 @@ export function Sidebar() {
       .then((r) => r.json())
       .then((data) => setHasTeam(!!data.myTeam))
       .catch(() => setHasTeam(false));
+
+    fetch("/api/announcements", { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((data) => setUnreadAnnouncements(data.unreadCount || 0))
+      .catch(() => {});
   }, [token]);
 
   const navItems = allNavItems.filter(
@@ -114,7 +122,12 @@ export function Sidebar() {
                 title={!isOpen ? item.label : undefined}
               >
                 <item.icon className="h-5 w-5 shrink-0" />
-                {isOpen && <span>{item.label}</span>}
+                {isOpen && <span className="flex-1">{item.label}</span>}
+                {item.showBadge && unreadAnnouncements > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                    {unreadAnnouncements > 99 ? "99+" : unreadAnnouncements}
+                  </span>
+                )}
               </Link>
             );
           })}

@@ -3,6 +3,7 @@
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { AnnouncementBanner } from "@/components/announcements/announcement-banner";
 import { useAuthStore } from "@/stores/auth-store";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -17,7 +18,10 @@ export default function DashboardLayout({
     <ThemeProvider>
       <AuthProvider>
         <AuthRedirect>
-          <DashboardShell>{children}</DashboardShell>
+          <DashboardShell>
+            <AnnouncementBanner />
+            {children}
+          </DashboardShell>
         </AuthRedirect>
       </AuthProvider>
     </ThemeProvider>

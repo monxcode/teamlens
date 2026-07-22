@@ -3,6 +3,7 @@
 import { useAuthStore } from "@/stores/auth-store";
 import { useThemeStore } from "@/stores/theme-store";
 import { useSidebarStore } from "@/stores/sidebar-store";
+import { connectSocket } from "@/lib/socket-client";
 import { Avatar } from "@/components/ui/avatar";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
@@ -30,13 +31,29 @@ export function Header() {
   const [notifications, setNotifications] = useState<
     { id: string; title: string; message: string; read: boolean; createdAt: string }[]
   >([]);
+  const [announcements, setAnnouncements] = useState<
+    { id: string; title: string; message: string; type: string; createdAt: string; isRead: boolean }[]
+  >([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchNotifications();
+  }, []);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("pulse_token");
+    if (!token) return;
+    const socket = connectSocket(token);
+    function handleDeleted(data: { announcementId: string }) {
+      setAnnouncements((prev) => prev.filter((a) => a.id !== data.announcementId));
+      setUnreadAnnouncements((prev) => Math.max(0, prev - 1));
+    }
+    socket.on("announcement:deleted", handleDeleted);
+    return () => { socket.off("announcement:deleted", handleDeleted); };
   }, []);
 
   useEffect(() => {
@@ -55,13 +72,19 @@ export function Header() {
   async function fetchNotifications() {
     try {
       const token = sessionStorage.getItem("pulse_token");
-      const res = await fetch("/api/notifications", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
+      const [notifRes, announceRes] = await Promise.all([
+        fetch("/api/notifications", { headers: { Authorization: `Bearer ${token}` } }),
+        fetch("/api/announcements", { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
+      if (notifRes.ok) {
+        const data = await notifRes.json();
         setNotifications(data.notifications);
         setUnreadCount(data.unreadCount);
+      }
+      if (announceRes.ok) {
+        const data = await announceRes.json();
+        setAnnouncements(data.announcements?.slice(0, 5) || []);
+        setUnreadAnnouncements(data.unreadCount || 0);
       }
     } catch {}
   }
@@ -135,9 +158,9 @@ export function Header() {
             className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-muted transition-colors relative"
           >
             <Bell className="h-4.5 w-4.5" />
-            {unreadCount > 0 && (
+            {(unreadCount + unreadAnnouncements) > 0 && (
               <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
-                {unreadCount}
+                {unreadCount + unreadAnnouncements}
               </span>
             )}
           </button>
@@ -167,27 +190,52 @@ export function Header() {
                 )}
               </div>
               <div className="max-h-80 overflow-y-auto">
-                {notifications.length === 0 ? (
+                {notifications.length === 0 && announcements.length === 0 ? (
                   <div className="p-8 text-center text-sm text-muted-foreground">
                     No notifications yet
                   </div>
                 ) : (
-                  notifications.map((n) => (
-                    <div
-                      key={n.id}
-                      className={`border-b px-4 py-3 last:border-0 ${
-                        !n.read ? "bg-primary/5" : ""
-                      }`}
-                    >
-                      <p className="text-sm font-medium">{n.title}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {n.message}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground mt-1">
-                        {formatRelativeTime(n.createdAt)}
-                      </p>
-                    </div>
-                  ))
+                  <>
+                    {announcements.length > 0 && (
+                      <div>
+                        <p className="px-4 py-2 text-[10px] font-medium text-muted-foreground uppercase tracking-wider border-b">
+                          Announcements
+                        </p>
+                        {announcements.map((a) => (
+                          <div
+                            key={a.id}
+                            className={`border-b px-4 py-3 last:border-0 ${!a.isRead ? "bg-amber-500/5" : ""}`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium">{a.title}</p>
+                              {!a.isRead && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{a.message}</p>
+                            <p className="text-[10px] text-muted-foreground mt-1">{formatRelativeTime(a.createdAt)}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {notifications.length > 0 && (
+                      <div>
+                        {announcements.length > 0 && (
+                          <p className="px-4 py-2 text-[10px] font-medium text-muted-foreground uppercase tracking-wider border-b">
+                            Notifications
+                          </p>
+                        )}
+                        {notifications.map((n) => (
+                          <div
+                            key={n.id}
+                            className={`border-b px-4 py-3 last:border-0 ${!n.read ? "bg-primary/5" : ""}`}
+                          >
+                            <p className="text-sm font-medium">{n.title}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{n.message}</p>
+                            <p className="text-[10px] text-muted-foreground mt-1">{formatRelativeTime(n.createdAt)}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>

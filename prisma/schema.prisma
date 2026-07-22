@@ -47,6 +47,7 @@ model User {
   chatMessages        ChatMessage[]
   chatReadReceipts    ChatReadReceipt[]
   pinnedMessages      ChatMessage[]     @relation("PinnedMessages")
+  announcementReads   AnnouncementRead[]
 }
 
 model Session {
@@ -399,16 +400,32 @@ model ApiKey {
 }
 
 model Announcement {
-  id        String   @id @default(cuid())
-  title     String
-  message   String
-  type      String   @default("info") // info | warning | critical
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String    @id @default(cuid())
+  title      String
+  message    String
+  type       String    @default("info") // info | warning | critical
+  active     Boolean   @default(true)
+  targetType String    @default("everyone") // everyone | teams | roles | users
+  targetIds  String    @default("[]")       // JSON array of IDs/names
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   authorId String
-  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author   User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  reads    AnnouncementRead[]
+}
+
+model AnnouncementRead {
+  id             String   @id @default(cuid())
+  announcementId String
+  userId         String
+  readAt         DateTime @default(now())
+
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([announcementId, userId])
 }
 
 model RateLimit {
