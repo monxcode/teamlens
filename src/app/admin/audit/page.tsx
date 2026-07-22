@@ -8,13 +8,126 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatRelativeTime } from "@/lib/utils";
-import { ScrollText, Search, ChevronDown, ChevronUp } from "lucide-react";
+import { ScrollText, Search, ChevronDown, ChevronUp, Plus, Minus, ArrowRight, Code2 } from "lucide-react";
 
 interface AuditLog {
   id: string; action: string; resource: string; resourceId: string | null;
   before: string | null; after: string | null; ipAddress: string | null;
   userAgent: string | null; device: string | null; createdAt: string;
   admin: { id: string; name: string; email: string };
+}
+
+// --- Diff helpers ---
+
+function parseJsonSafe(str: string | null): Record<string, unknown> | null {
+  if (!str) return null;
+  try { return JSON.parse(str); } catch { return null; }
+}
+
+function formatFieldName(key: string): string {
+  return key
+    .replace(/([A-Z])/g, " $1")
+    .replace(/_/g, " ")
+    .replace(/^\w/, (c) => c.toUpperCase())
+    .trim();
+}
+
+function formatValue(val: unknown): string {
+  if (val === null || val === undefined) return "—";
+  if (typeof val === "boolean") return val ? "ON" : "OFF";
+  if (Array.isArray(val)) {
+    if (val.length === 0) return "—";
+    return val.join(", ");
+  }
+  if (typeof val === "object") return JSON.stringify(val);
+  return String(val);
+}
+
+interface FieldDiff {
+  key: string;
+  label: string;
+  oldVal: unknown;
+  newVal: unknown;
+  type: "changed" | "added" | "removed";
+}
+
+function computeDiffs(before: Record<string, unknown> | null, after: Record<string, unknown> | null): FieldDiff[] {
+  if (!before && !after) return [];
+  const a = before || {};
+  const b = after || {};
+  const allKeys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  const diffs: FieldDiff[] = [];
+
+  for (const key of allKeys) {
+    const inA = key in a;
+    const inB = key in b;
+    const aVal = a[key];
+    const bVal = b[key];
+
+    // Skip internal fields
+    if (["id", "createdAt", "updatedAt"].includes(key)) continue;
+    // Skip identical values
+    if (inA && inB && JSON.stringify(aVal) === JSON.stringify(bVal)) continue;
+
+    if (!inA && inB) {
+      diffs.push({ key, label: formatFieldName(key), oldVal: null, newVal: bVal, type: "added" });
+    } else if (inA && !inB) {
+      diffs.push({ key, label: formatFieldName(key), oldVal: aVal, newVal: null, type: "removed" });
+    } else {
+      diffs.push({ key, label: formatFieldName(key), oldVal: aVal, newVal: bVal, type: "changed" });
+    }
+  }
+  return diffs;
+}
+
+function DiffView({ before, after }: { before: string | null; after: string | null }) {
+  const beforeObj = parseJsonSafe(before);
+  const afterObj = parseJsonSafe(after);
+  const diffs = computeDiffs(beforeObj, afterObj);
+
+  // If no parseable data or no diffs, show empty state
+  if ((!beforeObj && !afterObj) || diffs.length === 0) {
+    if (!before && !after) return null;
+    return (
+      <div className="text-xs text-muted-foreground italic">
+        No field changes detected.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1.5">
+      {diffs.map((d) => (
+        <div key={d.key} className="flex items-start gap-2 text-sm rounded-lg bg-card px-3 py-2 border">
+          <span className="shrink-0 mt-0.5">
+            {d.type === "added" && <Plus className="h-3.5 w-3.5 text-emerald-500" />}
+            {d.type === "removed" && <Minus className="h-3.5 w-3.5 text-red-500" />}
+            {d.type === "changed" && <ArrowRight className="h-3.5 w-3.5 text-amber-500" />}
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-foreground">{d.label}</p>
+            {d.type === "changed" && (
+              <p className="text-xs text-muted-foreground mt-0.5">
+                <span className="line-through opacity-60">{formatValue(d.oldVal)}</span>
+                {" → "}
+                <span className="font-medium text-foreground">{formatValue(d.newVal)}</span>
+              </p>
+            )}
+            {d.type === "added" && (
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
+                {formatValue(d.newVal)}
+              </p>
+            )}
+            {d.type === "removed" && (
+              <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">
+                {formatValue(d.oldVal)}
+              </p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function AdminAuditPage() {
@@ -26,6 +139,7 @@ export default function AdminAuditPage() {
   const [filterAction, setFilterAction] = useState("all");
   const [filterResource, setFilterResource] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showRaw, setShowRaw] = useState<Record<string, boolean>>({});
 
   useEffect(() => { fetchLogs(); }, [page, filterAction, filterResource]);
 
@@ -92,14 +206,32 @@ export default function AdminAuditPage() {
                     <div><p className="text-xs text-muted-foreground">IP Address</p><p className="text-sm">{log.ipAddress || "Unknown"}</p></div>
                     <div><p className="text-xs text-muted-foreground">Device</p><p className="text-sm">{log.device || "Unknown"}</p></div>
                   </div>
-                  {log.before && (
-                    <div><p className="text-xs text-muted-foreground mb-1">Before</p>
-                      <pre className="text-xs bg-card p-2 rounded-lg overflow-x-auto">{JSON.stringify(JSON.parse(log.before), null, 2)}</pre>
-                    </div>
-                  )}
-                  {log.after && (
-                    <div><p className="text-xs text-muted-foreground mb-1">After</p>
-                      <pre className="text-xs bg-card p-2 rounded-lg overflow-x-auto">{JSON.stringify(JSON.parse(log.after), null, 2)}</pre>
+                  {(log.before || log.after) && (
+                    <div>
+                      <DiffView before={log.before} after={log.after} />
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setShowRaw((prev) => ({ ...prev, [log.id]: !prev[log.id] })); }}
+                        className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Code2 className="h-3 w-3" />
+                        {showRaw[log.id] ? "Hide Raw Data" : "View Raw Data"}
+                      </button>
+                      {showRaw[log.id] && (
+                        <div className="mt-2 space-y-2">
+                          {log.before && (
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-1 font-medium">Before (Raw)</p>
+                              <pre className="text-xs bg-card p-2 rounded-lg overflow-x-auto border">{JSON.stringify(JSON.parse(log.before), null, 2)}</pre>
+                            </div>
+                          )}
+                          {log.after && (
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-1 font-medium">After (Raw)</p>
+                              <pre className="text-xs bg-card p-2 rounded-lg overflow-x-auto border">{JSON.stringify(JSON.parse(log.after), null, 2)}</pre>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                   {log.userAgent && <div><p className="text-xs text-muted-foreground">User Agent</p><p className="text-xs break-all">{log.userAgent}</p></div>}
