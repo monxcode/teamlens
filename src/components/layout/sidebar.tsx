@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/stores/sidebar-store";
-import { useEffect } from "react";
+import { useAuthStore } from "@/stores/auth-store";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -17,7 +18,7 @@ import {
   X,
 } from "lucide-react";
 
-const navItems = [
+const allNavItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/projects", label: "Projects", icon: FolderKanban },
   { href: "/dashboard/tasks", label: "Tasks", icon: CheckSquare },
@@ -29,10 +30,24 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { isOpen, isMobileOpen, toggle, setMobileOpen } = useSidebarStore();
+  const { token } = useAuthStore();
+  const [hasTeam, setHasTeam] = useState(false);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname, setMobileOpen]);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch("/api/teams", { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((data) => setHasTeam(!!data.myTeam))
+      .catch(() => setHasTeam(false));
+  }, [token]);
+
+  const navItems = allNavItems.filter(
+    (item) => item.href !== "/dashboard/team/chat" || hasTeam
+  );
 
   return (
     <>

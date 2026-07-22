@@ -12,7 +12,7 @@ import {
   LayoutDashboard, Users, Shield, FolderKanban, CheckSquare,
   Building2, Users2, BarChart3, Activity, ScrollText, Settings,
   Server, Flag, History, Megaphone, Zap, ChevronLeft, X, Menu,
-  LogOut, Bell, Sun, Moon, Link2,
+  LogOut, Bell, Sun, Moon, Link2, MessageSquare,
 } from "lucide-react";
 import { useThemeStore } from "@/stores/theme-store";
 import { Avatar } from "@/components/ui/avatar";
@@ -26,6 +26,7 @@ const adminNavItems = [
   { href: "/admin/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/admin/workspaces", label: "Workspaces", icon: Building2 },
   { href: "/admin/teams", label: "Teams", icon: Users2 },
+  { href: "/admin/teams/chat", label: "Team Chats", icon: MessageSquare },
   { href: "/admin/assignments", label: "Assignments", icon: Link2 },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/activity", label: "Activity", icon: Activity },
