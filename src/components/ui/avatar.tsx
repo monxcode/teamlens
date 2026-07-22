@@ -208,7 +208,7 @@ function Avatar({ name, src, size = "md", className, role, teamRole, showBadge =
       {BadgeIcon && !showCrownAvatar && (
         <div
           className={cn(
-            "absolute -bottom-0.5 -right-0.5 flex items-center justify-center rounded-full bg-background p-[1px] shadow-sm z-10",
+            "absolute -top-0.5 -right-0.5 flex items-center justify-center rounded-full bg-background p-[1px] shadow-sm z-10",
             badgeSizes[size]
           )}
           title={badge?.label}
@@ -220,9 +220,8 @@ function Avatar({ name, src, size = "md", className, role, teamRole, showBadge =
       {isOnline !== undefined && (
         <span
           className={cn(
-            "absolute rounded-full bg-emerald-500 ring-2 ring-background z-10",
-            onlineDotSizes[size],
-            BadgeIcon ? "-bottom-0.5 -left-0.5" : "-bottom-0.5 -right-0.5"
+            "absolute -bottom-0.5 -right-0.5 rounded-full bg-emerald-500 ring-2 ring-background z-10",
+            onlineDotSizes[size]
           )}
         />
       )}
