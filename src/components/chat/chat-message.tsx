@@ -53,6 +53,7 @@ export function ChatMessage({
   const isOnline = onlineUserIds.includes(msg.userId);
   const msgTeamRole = teamRoleMap?.get(msg.userId);
   const isSuperAdmin = msg.user.role === "super_admin";
+  const canEdit = isOwn && (Date.now() - new Date(msg.createdAt).getTime()) <= 15 * 60 * 1000;
   const readBy = msg.readReceipts
     .filter((r) => r.userId !== msg.userId)
     .map((r) => r.user.name);
@@ -115,7 +116,7 @@ export function ChatMessage({
               {formatRelativeTime(msg.createdAt)}
             </span>
             {msg.editedAt && (
-              <span className="text-[10px] text-muted-foreground">(edited)</span>
+              <span className="text-[10px] text-muted-foreground/60 italic">(edited)</span>
             )}
           </div>
         )}
@@ -202,7 +203,7 @@ export function ChatMessage({
           >
             <MessageSquare className="h-3.5 w-3.5" />
           </button>
-          {isOwn && (
+          {canEdit && (
             <button
               onClick={() => setIsEditing(true)}
               className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"

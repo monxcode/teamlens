@@ -186,6 +186,14 @@ export function initSocketServer(httpServer: HTTPServer) {
           return;
         }
 
+        // 15-minute edit window
+        const EDIT_WINDOW_MS = 15 * 60 * 1000;
+        const messageAge = Date.now() - existing.createdAt.getTime();
+        if (messageAge > EDIT_WINDOW_MS) {
+          socket.emit("chat:error", { message: "Messages can only be edited within 15 minutes of being sent" });
+          return;
+        }
+
         const updated = await db.chatMessage.update({
           where: { id: messageId },
           data: { content: content.trim(), editedAt: new Date() },
