@@ -37,7 +37,7 @@ export async function GET(request: Request) {
         ],
       },
       include: {
-        author: { select: { id: true, name: true, avatarUrl: true } },
+        author: { select: { id: true, name: true, avatarUrl: true, role: true } },
         reads: {
           where: { userId: payload.userId },
           select: { readAt: true },

@@ -13,7 +13,7 @@ import { connectSocket, getSocket } from "@/lib/socket-client";
 
 interface Announcement {
   id: string; title: string; message: string; type: string;
-  createdAt: string; author: { id: string; name: string; avatarUrl: string | null };
+  createdAt: string; author: { id: string; name: string; avatarUrl: string | null; role: string };
   isRead: boolean; readAt: string | null;
 }
 
@@ -109,7 +109,7 @@ export default function AnnouncementsPage() {
             <Card key={a.id} className={`transition-colors ${!a.isRead ? "border-primary/30 bg-primary/[0.02]" : ""}`}>
               <div className="p-5">
                 <div className="flex items-start gap-3">
-                  <Avatar name={a.author.name} src={a.author.avatarUrl} size="sm" />
+                  <Avatar name={a.author.name} src={a.author.avatarUrl} size="sm" role={a.author.role} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold text-sm">{a.title}</h3>

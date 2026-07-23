@@ -14,7 +14,7 @@ export async function GET(request: Request) {
 
     const announcements = await db.announcement.findMany({
       include: {
-        author: { select: { id: true, name: true, email: true, avatarUrl: true } },
+        author: { select: { id: true, name: true, email: true, avatarUrl: true, role: true } },
         reads: { select: { userId: true, readAt: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
         expiresAt: expiresAt ? new Date(expiresAt) : null,
         authorId: payload.userId,
       },
-      include: { author: { select: { id: true, name: true, email: true, avatarUrl: true } } },
+      include: { author: { select: { id: true, name: true, email: true, avatarUrl: true, role: true } } },
     });
 
     // Resolve targeted user IDs for broadcasting (NOT for creating read records)

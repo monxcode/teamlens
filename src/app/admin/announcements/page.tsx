@@ -12,11 +12,12 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { Megaphone, Plus, Users, Eye, Clock, CheckCircle2, Trash2 } from "lucide-react";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { Avatar } from "@/components/ui/avatar";
 
 interface Announcement {
   id: string; title: string; message: string; type: string; active: boolean;
   targetType: string; targetIds: string[]; expiresAt: string | null;
-  createdAt: string; author: { id: string; name: string };
+  createdAt: string; author: { id: string; name: string; avatarUrl: string | null; role: string };
   readCount: number; totalTargeted: number | string;
   reads: { userId: string; readAt: string }[];
 }
@@ -151,7 +152,10 @@ export default function AdminAnnouncementsPage() {
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{a.message}</p>
                     <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>By {a.author.name}</span>
+                      <div className="flex items-center gap-2">
+                        <Avatar name={a.author.name} src={a.author.avatarUrl} size="xs" role={a.author.role} />
+                        <span>{a.author.name}</span>
+                      </div>
                       <span>{formatRelativeTime(a.createdAt)}</span>
                       {a.expiresAt && <span>Expires {formatRelativeTime(a.expiresAt)}</span>}
                     </div>
