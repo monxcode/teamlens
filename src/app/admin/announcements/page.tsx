@@ -11,6 +11,7 @@ import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/empty-state";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { Megaphone, Plus, Users, Eye, Clock, CheckCircle2, Trash2 } from "lucide-react";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 
 interface Announcement {
   id: string; title: string; message: string; type: string; active: boolean;
@@ -255,12 +256,10 @@ export default function AdminAnnouncementsPage() {
 
             {newAnnouncement.enableExpiry && (
               <div className="space-y-2">
-                <Input
-                  type="datetime-local"
+                <DateTimePicker
                   value={newAnnouncement.expiresAt}
-                  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, expiresAt: e.target.value })}
-                  min={new Date().toISOString().slice(0, 16)}
-                  required
+                  onChange={(val) => setNewAnnouncement({ ...newAnnouncement, expiresAt: val })}
+                  placeholder="Select expiry date & time"
                 />
                 <p className="text-xs text-muted-foreground">
                   The announcement will automatically deactivate after this date.
