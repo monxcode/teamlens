@@ -25,7 +25,7 @@ export function ChatInput({ replyTo, onSend, onCancelReply, onTyping, teamRoleMa
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { uploads, uploadFiles, removeUpload, clearUploads, retryUpload } = useFileUpload();
+  const { uploads, addFiles, uploadAllPending, removeUpload, clearUploads, retryUpload } = useFileUpload();
 
   useEffect(() => {
     if (replyTo) {
@@ -59,13 +59,20 @@ export function ChatInput({ replyTo, onSend, onCancelReply, onTyping, teamRoleMa
 
   async function handleSubmit() {
     const hasContent = content.trim();
-    const hasUploads = uploads.some((u) => u.status === "complete");
+    const hasPending = uploads.some((u) => u.status === "pending");
 
-    if (!hasContent && !hasUploads) return;
+    if (!hasContent && uploads.length === 0) return;
 
-    const attachmentIds = uploads
-      .filter((u) => u.status === "complete" && u.attachmentId)
-      .map((u) => u.attachmentId!);
+    // Upload any pending files first
+    let attachmentIds: string[] = [];
+    if (hasPending && teamId) {
+      const uploaded = await uploadAllPending(teamId);
+      attachmentIds = uploaded.map((a) => a.id);
+    } else {
+      attachmentIds = uploads
+        .filter((u) => u.status === "complete" && u.attachmentId)
+        .map((u) => u.attachmentId!);
+    }
 
     onSend(content.trim(), replyTo?.id, attachmentIds.length > 0 ? attachmentIds : undefined);
     setContent("");
@@ -90,8 +97,7 @@ export function ChatInput({ replyTo, onSend, onCancelReply, onTyping, teamRoleMa
   }
 
   async function handleFilesSelected(files: File[]) {
-    if (!teamId) return;
-    await uploadFiles(files, teamId);
+    await addFiles(files);
   }
 
   // Drag and drop on the entire input area
@@ -109,19 +115,17 @@ export function ChatInput({ replyTo, onSend, onCancelReply, onTyping, teamRoleMa
     async (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
-      if (!teamId) return;
       const files = Array.from(e.dataTransfer.files);
       if (files.length > 0) {
-        await uploadFiles(files, teamId);
+        await addFiles(files);
       }
     },
-    [teamId, uploadFiles]
+    [addFiles]
   );
 
   // Paste handler for images/files
   const handlePaste = useCallback(
     async (e: React.ClipboardEvent) => {
-      if (!teamId) return;
       const items = Array.from(e.clipboardData.items);
       const files: File[] = [];
       for (const item of items) {
@@ -132,10 +136,10 @@ export function ChatInput({ replyTo, onSend, onCancelReply, onTyping, teamRoleMa
       }
       if (files.length > 0) {
         e.preventDefault();
-        await uploadFiles(files, teamId);
+        await addFiles(files);
       }
     },
-    [teamId, uploadFiles]
+    [addFiles]
   );
 
   const hasUploads = uploads.length > 0;

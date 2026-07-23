@@ -1,15 +1,21 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 export interface UploadProgress {
   fileId: string;
   file: File;
   progress: number;
-  status: "uploading" | "complete" | "error";
+  status: "pending" | "uploading" | "complete" | "error";
   error?: string;
   attachmentId?: string;
   url?: string;
+  previewUrl?: string;
+  metadata?: {
+    width?: number;
+    height?: number;
+    duration?: number;
+  };
 }
 
 export interface UploadedAttachment {
@@ -22,22 +28,137 @@ export interface UploadedAttachment {
   url: string;
 }
 
+function getFileType(mimeType: string): "image" | "video" | "audio" | "document" {
+  if (mimeType.startsWith("image/")) return "image";
+  if (mimeType.startsWith("video/")) return "video";
+  if (mimeType.startsWith("audio/")) return "audio";
+  return "document";
+}
+
+function generatePreview(file: File): Promise<{ previewUrl: string; metadata?: { width?: number; height?: number; duration?: number } }> {
+  return new Promise((resolve) => {
+    const type = getFileType(file.type);
+
+    if (type === "image") {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        resolve({
+          previewUrl: url,
+          metadata: { width: img.naturalWidth, height: img.naturalHeight },
+        });
+      };
+      img.onerror = () => resolve({ previewUrl: url });
+      img.src = url;
+      return;
+    }
+
+    if (type === "video") {
+      const url = URL.createObjectURL(file);
+      const video = document.createElement("video");
+      video.preload = "metadata";
+      video.onloadedmetadata = () => {
+        // Create thumbnail from video
+        video.currentTime = Math.min(1, video.duration / 4);
+        video.onseeked = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const thumbUrl = canvas.toDataURL("image/jpeg", 0.7);
+            resolve({
+              previewUrl: thumbUrl,
+              metadata: {
+                width: video.videoWidth,
+                height: video.videoHeight,
+                duration: video.duration,
+              },
+            });
+          } else {
+            resolve({
+              previewUrl: url,
+              metadata: { width: video.videoWidth, height: video.videoHeight, duration: video.duration },
+            });
+          }
+          URL.revokeObjectURL(url);
+        };
+      };
+      video.onerror = () => resolve({ previewUrl: url });
+      video.src = url;
+      return;
+    }
+
+    if (type === "audio") {
+      const url = URL.createObjectURL(file);
+      const audio = document.createElement("audio");
+      audio.preload = "metadata";
+      audio.onloadedmetadata = () => {
+        resolve({
+          previewUrl: url,
+          metadata: { duration: audio.duration },
+        });
+      };
+      audio.onerror = () => resolve({ previewUrl: url });
+      audio.src = url;
+      return;
+    }
+
+    // Documents — no preview
+    resolve({ previewUrl: "" });
+  });
+}
+
 export function useFileUpload() {
   const [uploads, setUploads] = useState<UploadProgress[]>([]);
+  const uploadsRef = useRef(uploads);
+  uploadsRef.current = uploads;
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      uploadsRef.current.forEach((u) => {
+        if (u.previewUrl && u.previewUrl.startsWith("blob:")) {
+          URL.revokeObjectURL(u.previewUrl);
+        }
+      });
+    };
+  }, []);
+
+  const addFiles = useCallback(async (files: File[]) => {
+    const newUploads: UploadProgress[] = [];
+
+    for (const file of files) {
+      const fileId = `file-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const { previewUrl, metadata } = await generatePreview(file);
+
+      newUploads.push({
+        fileId,
+        file,
+        progress: 0,
+        status: "pending",
+        previewUrl,
+        metadata,
+      });
+    }
+
+    setUploads((prev) => [...prev, ...newUploads]);
+    return newUploads;
+  }, []);
 
   const uploadFile = useCallback(
-    async (file: File, teamId: string): Promise<UploadedAttachment | null> => {
-      const fileId = `file-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    async (fileId: string, teamId: string): Promise<UploadedAttachment | null> => {
+      const upload = uploadsRef.current.find((u) => u.fileId === fileId);
+      if (!upload) return null;
 
-      // Add to uploads with progress
-      setUploads((prev) => [
-        ...prev,
-        { fileId, file, progress: 0, status: "uploading" },
-      ]);
+      setUploads((prev) =>
+        prev.map((u) => (u.fileId === fileId ? { ...u, status: "uploading", progress: 0 } : u))
+      );
 
       try {
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", upload.file);
         formData.append("teamId", teamId);
 
         const token = sessionStorage.getItem("pulse_token");
@@ -94,17 +215,18 @@ export function useFileUpload() {
         });
 
         return result;
-      } catch (error) {
+      } catch {
         return null;
       }
     },
     []
   );
 
-  const uploadFiles = useCallback(
-    async (files: File[], teamId: string): Promise<UploadedAttachment[]> => {
+  const uploadAllPending = useCallback(
+    async (teamId: string): Promise<UploadedAttachment[]> => {
+      const pending = uploadsRef.current.filter((u) => u.status === "pending");
       const results = await Promise.all(
-        files.map((file) => uploadFile(file, teamId))
+        pending.map((u) => uploadFile(u.fileId, teamId))
       );
       return results.filter((r): r is UploadedAttachment => r !== null);
     },
@@ -112,33 +234,36 @@ export function useFileUpload() {
   );
 
   const removeUpload = useCallback((fileId: string) => {
-    setUploads((prev) => prev.filter((u) => u.fileId !== fileId));
+    setUploads((prev) => {
+      const upload = prev.find((u) => u.fileId === fileId);
+      if (upload?.previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(upload.previewUrl);
+      }
+      return prev.filter((u) => u.fileId !== fileId);
+    });
   }, []);
 
   const clearUploads = useCallback(() => {
+    uploadsRef.current.forEach((u) => {
+      if (u.previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(u.previewUrl);
+      }
+    });
     setUploads([]);
   }, []);
 
   const retryUpload = useCallback(
     async (fileId: string, teamId: string) => {
-      const upload = uploads.find((u) => u.fileId === fileId);
-      if (!upload) return null;
-
-      setUploads((prev) =>
-        prev.map((u) =>
-          u.fileId === fileId ? { ...u, status: "uploading", progress: 0, error: undefined } : u
-        )
-      );
-
-      return uploadFile(upload.file, teamId);
+      return uploadFile(fileId, teamId);
     },
-    [uploads, uploadFile]
+    [uploadFile]
   );
 
   return {
     uploads,
+    addFiles,
     uploadFile,
-    uploadFiles,
+    uploadAllPending,
     removeUpload,
     clearUploads,
     retryUpload,

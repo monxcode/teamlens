@@ -2,7 +2,10 @@
 
 import { useRef, useCallback, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Paperclip, X, CheckCircle2 } from "lucide-react";
+import {
+  Paperclip, X, CheckCircle2, AlertCircle, Play,
+  FileText, Music, Film, Image as ImageIcon, File,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UploadProgress } from "@/hooks/use-file-upload";
 
@@ -36,16 +39,158 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function getFileIcon(mimeType: string): string {
-  if (mimeType.startsWith("image/")) return "🖼️";
-  if (mimeType.startsWith("video/")) return "🎬";
-  if (mimeType.startsWith("audio/")) return "🎵";
-  if (mimeType.includes("pdf")) return "📄";
-  if (mimeType.includes("word") || mimeType.includes("document")) return "📝";
-  if (mimeType.includes("excel") || mimeType.includes("spreadsheet")) return "📊";
-  if (mimeType.includes("powerpoint") || mimeType.includes("presentation")) return "📽️";
-  if (mimeType.includes("zip")) return "📦";
-  return "📎";
+function formatDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+function getFileType(mimeType: string): "image" | "video" | "audio" | "document" {
+  if (mimeType.startsWith("image/")) return "image";
+  if (mimeType.startsWith("video/")) return "video";
+  if (mimeType.startsWith("audio/")) return "audio";
+  return "document";
+}
+
+function getDocIcon(mimeType: string) {
+  if (mimeType.includes("pdf")) return <FileText className="h-8 w-8 text-red-500" />;
+  if (mimeType.includes("word") || mimeType.includes("document")) return <FileText className="h-8 w-8 text-blue-500" />;
+  if (mimeType.includes("excel") || mimeType.includes("spreadsheet")) return <FileText className="h-8 w-8 text-green-500" />;
+  if (mimeType.includes("powerpoint") || mimeType.includes("presentation")) return <Film className="h-8 w-8 text-orange-500" />;
+  if (mimeType.includes("zip")) return <File className="h-8 w-8 text-yellow-500" />;
+  return <FileText className="h-8 w-8 text-muted-foreground" />;
+}
+
+function UploadCard({ upload, onRemove, onRetry }: {
+  upload: UploadProgress;
+  onRemove: () => void;
+  onRetry: () => void;
+}) {
+  const fileType = getFileType(upload.file.type);
+
+  return (
+    <div className="relative group rounded-xl border bg-card overflow-hidden transition-all hover:shadow-md">
+      {/* Preview area */}
+      <div className="relative aspect-square bg-muted">
+        {fileType === "image" && upload.previewUrl ? (
+          <img
+            src={upload.previewUrl}
+            alt={upload.file.name}
+            className="w-full h-full object-cover"
+          />
+        ) : fileType === "video" && upload.previewUrl ? (
+          <div className="relative w-full h-full">
+            <img
+              src={upload.previewUrl}
+              alt={upload.file.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+              <div className="h-10 w-10 rounded-full bg-white/90 flex items-center justify-center">
+                <Play className="h-5 w-5 text-black ml-0.5" fill="black" />
+              </div>
+            </div>
+            {upload.metadata?.duration && (
+              <span className="absolute bottom-2 right-2 text-[10px] font-medium bg-black/70 text-white px-1.5 py-0.5 rounded">
+                {formatDuration(upload.metadata.duration)}
+              </span>
+            )}
+          </div>
+        ) : fileType === "audio" ? (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 p-4">
+            <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <Music className="h-7 w-7 text-primary" />
+            </div>
+            {upload.previewUrl && (
+              <audio src={upload.previewUrl} controls className="w-full max-w-[180px] h-8" />
+            )}
+          </div>
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 p-4">
+            {getDocIcon(upload.file.type)}
+            <span className="text-[10px] font-medium text-muted-foreground uppercase">
+              {upload.file.name.split(".").pop()}
+            </span>
+          </div>
+        )}
+
+        {/* Status overlay */}
+        {upload.status === "uploading" && (
+          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-2">
+            <div className="h-10 w-10 rounded-full border-2 border-white border-t-transparent animate-spin" />
+            <span className="text-xs font-medium text-white">{upload.progress}%</span>
+          </div>
+        )}
+
+        {upload.status === "complete" && (
+          <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center">
+            <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+          </div>
+        )}
+
+        {upload.status === "error" && (
+          <div className="absolute inset-0 bg-destructive/10 flex items-center justify-center">
+            <AlertCircle className="h-10 w-10 text-destructive" />
+          </div>
+        )}
+
+        {/* Remove button */}
+        {upload.status !== "uploading" && (
+          <button
+            onClick={onRemove}
+            className="absolute top-2 right-2 h-6 w-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
+      {/* Info area */}
+      <div className="px-3 py-2">
+        <p className="text-xs font-medium truncate" title={upload.file.name}>
+          {upload.file.name}
+        </p>
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-[10px] text-muted-foreground">
+            {formatFileSize(upload.file.size)}
+          </span>
+          {upload.metadata?.width && upload.metadata?.height && (
+            <span className="text-[10px] text-muted-foreground">
+              {upload.metadata.width}×{upload.metadata.height}
+            </span>
+          )}
+          {upload.metadata?.duration && fileType !== "video" && (
+            <span className="text-[10px] text-muted-foreground">
+              {formatDuration(upload.metadata.duration)}
+            </span>
+          )}
+        </div>
+
+        {/* Progress bar */}
+        {upload.status === "uploading" && (
+          <div className="mt-2 h-1 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all duration-300 rounded-full"
+              style={{ width: `${upload.progress}%` }}
+            />
+          </div>
+        )}
+
+        {/* Error + retry */}
+        {upload.status === "error" && (
+          <div className="mt-1.5 flex items-center gap-2">
+            <p className="text-[10px] text-destructive truncate flex-1">{upload.error}</p>
+            <button
+              onClick={onRetry}
+              className="text-[10px] text-primary font-medium hover:underline shrink-0"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export function AttachmentButton({
@@ -74,20 +219,18 @@ export function AttachmentButton({
     [onFilesSelected]
   );
 
-  // Position the panel above the button
   useEffect(() => {
     if (uploads.length > 0 && fileInputRef.current) {
       const rect = fileInputRef.current.getBoundingClientRect();
-      setPanelPos({
-        top: rect.top - 8,
-        left: rect.left,
-      });
+      setPanelPos({ top: rect.top - 8, left: rect.left });
     } else {
       setPanelPos(null);
     }
   }, [uploads.length]);
 
-  const activeUploads = uploads.filter((u) => u.status === "uploading");
+  const pendingCount = uploads.filter((u) => u.status === "pending").length;
+  const uploadingCount = uploads.filter((u) => u.status === "uploading").length;
+  const completedCount = uploads.filter((u) => u.status === "complete").length;
 
   return (
     <>
@@ -98,13 +241,10 @@ export function AttachmentButton({
           input.type = "file";
           input.multiple = true;
           input.accept = ACCEPTED_TYPES.join(",");
-          input.onchange = (e) => {
-            const event = e as unknown as React.ChangeEvent<HTMLInputElement>;
-            handleFileSelect(event);
-          };
+          input.onchange = (e) => handleFileSelect(e as unknown as React.ChangeEvent<HTMLInputElement>);
           input.click();
         }}
-        disabled={disabled || activeUploads.length > 0}
+        disabled={disabled}
         className={cn(
           "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
           "text-muted-foreground hover:text-foreground hover:bg-muted",
@@ -115,69 +255,39 @@ export function AttachmentButton({
         <Paperclip className="h-5 w-5" />
       </button>
 
-      {/* Upload Progress Panel — Portaled to body to escape overflow containers */}
       {uploads.length > 0 && panelPos && createPortal(
         <div
-          className="fixed z-[9999] w-72 rounded-xl border bg-card shadow-xl overflow-hidden"
+          className="fixed z-[9999] w-[380px] max-h-[480px] rounded-xl border bg-card shadow-2xl overflow-hidden flex flex-col"
           style={{ bottom: `${window.innerHeight - panelPos.top + 8}px`, left: `${panelPos.left}px` }}
         >
-          <div className="px-3 py-2 border-b">
-            <p className="text-xs font-medium text-muted-foreground">
-              {activeUploads.length > 0
-                ? `Uploading ${activeUploads.length} file${activeUploads.length > 1 ? "s" : ""}...`
-                : "Uploads"}
-            </p>
+          {/* Header */}
+          <div className="px-4 py-3 border-b flex items-center justify-between shrink-0">
+            <div>
+              <p className="text-sm font-semibold">
+                {uploadingCount > 0
+                  ? `Uploading ${uploadingCount} file${uploadingCount > 1 ? "s" : ""}...`
+                  : pendingCount > 0
+                  ? `${pendingCount} file${pendingCount > 1 ? "s" : ""} ready`
+                  : `${completedCount} file${completedCount > 1 ? "s" : ""} uploaded`}
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                {uploads.length} total • Click attach to send
+              </p>
+            </div>
           </div>
-          <div className="max-h-48 overflow-y-auto">
-            {uploads.map((upload) => (
-              <div
-                key={upload.fileId}
-                className="flex items-center gap-2 px-3 py-2 border-b last:border-0"
-              >
-                <span className="text-lg shrink-0">{getFileIcon(upload.file.type)}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">{upload.file.name}</p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {formatFileSize(upload.file.size)}
-                  </p>
-                  {upload.status === "uploading" && (
-                    <div className="mt-1 h-1 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary transition-all duration-300"
-                        style={{ width: `${upload.progress}%` }}
-                      />
-                    </div>
-                  )}
-                  {upload.status === "error" && (
-                    <p className="text-[10px] text-destructive mt-0.5">{upload.error}</p>
-                  )}
-                </div>
-                <div className="shrink-0 flex items-center gap-1">
-                  {upload.status === "uploading" && (
-                    <span className="text-[10px] text-muted-foreground">{upload.progress}%</span>
-                  )}
-                  {upload.status === "complete" && (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                  )}
-                  {upload.status === "error" && (
-                    <button
-                      onClick={() => onRetryUpload(upload.fileId)}
-                      className="text-[10px] text-primary hover:underline"
-                    >
-                      Retry
-                    </button>
-                  )}
-                  {upload.status !== "uploading" && (
-                    <button
-                      onClick={() => onRemoveUpload(upload.fileId)}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
+
+          {/* Grid of preview cards */}
+          <div className="flex-1 overflow-y-auto p-3">
+            <div className="grid grid-cols-2 gap-2">
+              {uploads.map((upload) => (
+                <UploadCard
+                  key={upload.fileId}
+                  upload={upload}
+                  onRemove={() => onRemoveUpload(upload.fileId)}
+                  onRetry={() => onRetryUpload(upload.fileId)}
+                />
+              ))}
+            </div>
           </div>
         </div>,
         document.body
