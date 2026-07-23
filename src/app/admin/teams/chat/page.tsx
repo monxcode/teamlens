@@ -310,9 +310,9 @@ export default function AdminTeamChatPage() {
   }
 
   const handleSend = useCallback(
-    (content: string, replyToId?: string) => {
+    (content: string, replyToId?: string, attachmentIds?: string[]) => {
       if (!selectedTeamId) return;
-      emit("chat:message", { teamId: selectedTeamId, content, replyToId });
+      emit("chat:message", { teamId: selectedTeamId, content, replyToId, attachmentIds });
     },
     [selectedTeamId, emit]
   );
@@ -512,6 +512,7 @@ export default function AdminTeamChatPage() {
               onCancelReply={() => setReplyTo(null)}
               onTyping={handleTyping}
               teamRoleMap={teamRoleMap}
+              teamId={selectedTeamId || undefined}
             />
           </>
         )}

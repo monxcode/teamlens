@@ -307,9 +307,9 @@ export default function TeamChatPage() {
   }
 
   const handleSend = useCallback(
-    (content: string, replyToId?: string) => {
+    (content: string, replyToId?: string, attachmentIds?: string[]) => {
       if (!teamId) return;
-      emit("chat:message", { teamId, content, replyToId });
+      emit("chat:message", { teamId, content, replyToId, attachmentIds });
     },
     [teamId, emit]
   );
@@ -467,6 +467,7 @@ export default function TeamChatPage() {
           onCancelReply={() => setReplyTo(null)}
           onTyping={handleTyping}
           teamRoleMap={teamRoleMap}
+          teamId={teamId || undefined}
         />
       </div>
 

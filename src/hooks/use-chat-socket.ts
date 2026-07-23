@@ -12,6 +12,21 @@ export interface ChatUser {
   role: string;
 }
 
+export interface ChatAttachment {
+  id: string;
+  fileName: string;
+  originalName: string;
+  mimeType: string;
+  fileSize: number;
+  fileType: string;
+  url: string;
+  thumbnailUrl: string | null;
+  duration: number | null;
+  width: number | null;
+  height: number | null;
+  createdAt: string;
+}
+
 export interface ChatMessageData {
   id: string;
   content: string;
@@ -37,6 +52,7 @@ export interface ChatMessageData {
     userId: string;
     user: { id: string; name: string };
   }[];
+  attachments: ChatAttachment[];
 }
 
 export interface TypingUser {

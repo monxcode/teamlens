@@ -131,8 +131,9 @@ export function initSocketServer(httpServer: HTTPServer) {
       }
     });
 
-    socket.on("chat:message", async ({ teamId, content, replyToId }: { teamId: string; content: string; replyToId?: string }) => {
-      if (!teamId || !content?.trim()) return;
+    socket.on("chat:message", async ({ teamId, content, replyToId, attachmentIds }: { teamId: string; content: string; replyToId?: string; attachmentIds?: string[] }) => {
+      if (!teamId) return;
+      if (!content?.trim() && (!attachmentIds || attachmentIds.length === 0)) return;
 
       try {
         const canAccess = await canAccessTeamChat(user.userId, teamId);
@@ -141,9 +142,13 @@ export function initSocketServer(httpServer: HTTPServer) {
           return;
         }
 
+        const hasAttachments = attachmentIds && attachmentIds.length > 0;
+        const messageType = hasAttachments ? "media" : "text";
+
         const message = await db.chatMessage.create({
           data: {
-            content: content.trim(),
+            content: content?.trim() || "",
+            type: messageType,
             teamId,
             userId: user.userId,
             replyToId: replyToId || null,
@@ -166,10 +171,46 @@ export function initSocketServer(httpServer: HTTPServer) {
                 },
               },
             },
+            attachments: true,
           },
         });
 
-        io.to(`team:${teamId}`).emit("chat:message", message);
+        // Link attachments to message
+        if (hasAttachments) {
+          await db.chatAttachment.updateMany({
+            where: { id: { in: attachmentIds } },
+            data: { messageId: message.id },
+          });
+
+          // Re-fetch message with attachments
+          const updatedMessage = await db.chatMessage.findUnique({
+            where: { id: message.id },
+            include: {
+              user: {
+                select: { id: true, name: true, email: true, avatarUrl: true, role: true },
+              },
+              replyTo: {
+                include: {
+                  user: {
+                    select: { id: true, name: true, email: true, avatarUrl: true, role: true },
+                  },
+                },
+              },
+              readReceipts: {
+                include: {
+                  user: {
+                    select: { id: true, name: true },
+                  },
+                },
+              },
+              attachments: true,
+            },
+          });
+
+          io.to(`team:${teamId}`).emit("chat:message", updatedMessage);
+        } else {
+          io.to(`team:${teamId}`).emit("chat:message", message);
+        }
       } catch (error) {
         console.error("Chat message error:", error);
         socket.emit("chat:error", { message: "Failed to send message" });

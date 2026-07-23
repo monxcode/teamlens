@@ -174,7 +174,7 @@ model TeamMember {
 model ChatMessage {
   id        String   @id @default(cuid())
   content   String
-  type      String   @default("text") // text | system
+  type      String   @default("text") // text | system | media
   editedAt  DateTime?
   pinned    Boolean  @default(false)
   pinnedAt  DateTime?
@@ -195,6 +195,25 @@ model ChatMessage {
   pinner    User?    @relation("PinnedMessages", fields: [pinnedBy], references: [id], onDelete: SetNull)
 
   readReceipts ChatReadReceipt[]
+  attachments  ChatAttachment[]
+}
+
+model ChatAttachment {
+  id          String   @id @default(cuid())
+  fileName    String
+  originalName String
+  mimeType    String
+  fileSize    Int
+  fileType    String   // image | video | audio | document
+  url         String
+  thumbnailUrl String?
+  duration    Int?     // for audio/video in seconds
+  width       Int?     // for images/videos
+  height      Int?     // for images/videos
+  createdAt   DateTime @default(now())
+
+  messageId String?
+  message   ChatMessage? @relation(fields: [messageId], references: [id], onDelete: SetNull)
 }
 
 model ChatReadReceipt {

@@ -50,14 +50,37 @@ next-env.d.ts
 *.db
 *.db-journal
 
-# uploads
-/public/avatars/*
-!/public/avatars/.gitkeep
+# uploads — avatars
+/public/avatars/
 
-# IDE
-.vscode/
-.idea/
+# uploads — chat media (images, videos, audio, documents)
+/public/chat-files/
+
+# thumbnails & generated media
+/public/thumbnails/
+/public/cache/
+
+# runtime storage
+/tmp/
+/temp/
+
+# logs
+*.log
+logs/
 
 # OS
 Thumbs.db
 Desktop.ini
+ehthumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# misc runtime
+*.pid
+*.seed
+*.pid.lock

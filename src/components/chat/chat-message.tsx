@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { ChatMessageData } from "@/hooks/use-chat-socket";
+import { AttachmentRenderer } from "./attachment-renderer";
 import {
   MessageSquare,
   Edit3,
@@ -168,6 +169,10 @@ export function ChatMessage({
           </div>
         ) : (
           <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+        )}
+
+        {msg.attachments && msg.attachments.length > 0 && (
+          <AttachmentRenderer attachments={msg.attachments} />
         )}
 
         {msg.pinned && (
