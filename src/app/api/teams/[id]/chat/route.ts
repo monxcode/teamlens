@@ -53,6 +53,7 @@ export async function GET(
             user: { select: { id: true, name: true } },
           },
         },
+        attachments: true,
       },
       orderBy: { createdAt: "desc" },
       take: limit + 1,
