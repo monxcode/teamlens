@@ -158,12 +158,12 @@ export default function AdminTeamChatPage() {
         setMessages((prev) =>
           prev.map((m) => {
             if (data.messageIds.includes(m.id)) {
-              const existing = m.readReceipts.some((r) => r.userId === data.userId);
+              const existing = (m.readReceipts || []).some((r) => r.userId === data.userId);
               if (existing) return m;
               return {
                 ...m,
                 readReceipts: [
-                  ...m.readReceipts,
+                  ...(m.readReceipts || []),
                   {
                     id: data.userId + m.id,
                     readAt: data.readAt,

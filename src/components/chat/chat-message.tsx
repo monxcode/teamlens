@@ -55,7 +55,7 @@ export function ChatMessage({
   const msgTeamRole = teamRoleMap?.get(msg.userId);
   const isSuperAdmin = msg.user.role === "super_admin";
   const canEdit = isOwn && (Date.now() - new Date(msg.createdAt).getTime()) <= 15 * 60 * 1000;
-  const readBy = msg.readReceipts
+  const readBy = (msg.readReceipts || [])
     .filter((r) => r.userId !== msg.userId)
     .map((r) => r.user.name);
 
