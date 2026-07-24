@@ -1595,28 +1595,80 @@ Authorization: Bearer <jwt_token>
 
 ### Architecture Summary
 
+```mermaid
+flowchart TB
+    subgraph Client["Client Layer"]
+        User([User]) --> Browser[Browser]
+        Browser --> NextJS[Next.js + React]
+        Browser --> SocketClient[Socket.IO Client]
+        NextJS --> Zustand[Zustand Stores<br/>Auth · Theme · Sidebar]
+        NextJS --> Tailwind[Tailwind CSS]
+    end
+
+    subgraph Server["Application Layer"]
+        NextJS -->|"HTTP Requests"| APIRoutes[API Routes<br/>REST Endpoints]
+        SocketClient -->|"WebSocket"| SocketServer[Socket.IO Server<br/>Real-Time Events]
+
+        APIRoutes --> Auth[Authentication<br/>JWT + bcrypt]
+        APIRoutes --> RBAC[RBAC<br/>40 Permissions · 6 Roles]
+        APIRoutes --> Announcements[Announcements<br/>Targeted Broadcasts]
+        APIRoutes --> Notifications[Notifications<br/>In-App Alerts]
+        APIRoutes --> MediaUploads[Media Uploads<br/>Avatars + Chat Files]
+        APIRoutes --> AuditLogs[Audit Logs<br/>Admin Action Trail]
+
+        SocketServer --> RealTimeChat[Real-Time Chat<br/>Team Rooms]
+        SocketServer --> TypingIndicators[Typing Indicators<br/>In-Memory]
+        SocketServer --> Presence[Online Presence<br/>In-Memory]
+    end
+
+    subgraph Data["Data Layer"]
+        Auth --> PrismaClient[Prisma Client<br/>Singleton]
+        APIRoutes --> PrismaClient
+        SocketServer --> PrismaClient
+        PrismaClient --> PrismaORM[Prisma ORM<br/>Query Builder]
+    end
+
+    subgraph Storage["Storage Layer"]
+        PrismaORM --> SQLite[(SQLite<br/>prisma/dev.db)]
+        MediaUploads --> FileSystem[File System<br/>public/avatars/<br/>public/chat-files/]
+    end
+
+    Client --> Server
+    Server --> Data
+    Data --> Storage
+
+    classDef clientStyle fill:#e8f4fd,stroke:#2196F3,color:#000
+    classDef serverStyle fill:#fff3e0,stroke:#FF9800,color:#000
+    classDef dataStyle fill:#e8f5e9,stroke:#4CAF50,color:#000
+    classDef storageStyle fill:#fce4ec,stroke:#E91E63,color:#000
+
+    class User,Browser,NextJS,SocketClient,Zustand,Tailwind clientStyle
+    class APIRoutes,SocketServer,Auth,RBAC,Announcements,Notifications,MediaUploads,AuditLogs,RealTimeChat,TypingIndicators,Presence serverStyle
+    class PrismaClient,PrismaORM dataStyle
+    class SQLite,FileSystem storageStyle
 ```
-┌─────────────────────────────────────────────────┐
-│                   Client (Browser)              │
-│  ┌──────────┐ ┌──────────┐ ┌──────────────────┐ │
-│  │ Next.js  │ │ Zustand  │ │ Socket.IO Client │ │
-│  │ React    │ │ Stores   │ │                  │ │
-│  └──────────┘ └──────────┘ └──────────────────┘ │
-└──────────────────────┬──────────────────────────┘
-                       │ HTTP + WebSocket
-┌──────────────────────┴──────────────────────────┐
-│              Custom Node.js Server              │
-│  ┌──────────┐ ┌──────────┐ ┌──────────────────┐ │
-│  │ Next.js  │ │ Socket.IO│ │   Prisma ORM     │ │
-│  │ Handler  │ │ Server   │ │                  │ │
-│  └──────────┘ └──────────┘ └──────────────────┘ │
-└──────────────────────┬──────────────────────────┘
-                       │
-┌──────────────────────┴──────────────────────────┐
-│                  SQLite Database                │
-│  25+ models · Audit logging · RBAC              │
-└─────────────────────────────────────────────────┘
-```
+
+**Flow Types:**
+- **HTTP Request Flow:** User → Browser → Next.js → API Routes → Prisma → SQLite
+- **WebSocket Real-Time Flow:** User → Browser → Socket.IO Client → Socket.IO Server → Prisma → SQLite
+- **Media Flow:** API Routes → File System (avatars, chat files)
+
+### Technology Stack Summary
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16.2.10 + React 19.2.4 + TypeScript 5 |
+| State Management | Zustand 5.0.14 |
+| Styling | Tailwind CSS 4 |
+| Real-Time | Socket.IO 4.8.3 (WebSocket + polling fallback) |
+| ORM | Prisma 6.19.3 |
+| Database | SQLite |
+| Authentication | JWT (jsonwebtoken) + bcryptjs |
+| Storage | Local filesystem (`public/avatars/`, `public/chat-files/`) |
+| Validation | Zod 4.4.3 |
+| Animation | Framer Motion 12.42.2 |
+| Charts | Recharts 3.9.2 |
+| Icons | Lucide React 1.25.0 |
 
 ### Technology Stack
 
