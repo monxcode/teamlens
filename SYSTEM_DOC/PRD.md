@@ -1016,7 +1016,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     A[Admin seeds database] --> B[Bootstrap admin created]
-    B --> C[admin@pulse.com with forced reset]
+    B --> C["admin@pulse.com with forced reset"]
     C --> D[Admin logs in]
     D --> E[Redirected to /change-password]
     E --> F[Enter current + new password]
@@ -1024,7 +1024,7 @@ flowchart TD
     G -->|No| H[Show error]
     H --> F
     G -->|Yes| I[Password updated]
-    I --> J[forcePasswordReset = false]
+    I --> J["forcePasswordReset = false"]
     J --> K[Redirect to /dashboard]
 ```
 
