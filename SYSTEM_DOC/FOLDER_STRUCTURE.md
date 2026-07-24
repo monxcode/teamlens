@@ -254,14 +254,17 @@ teamlens/
 │     ├─ auth-store.ts
 │     ├─ sidebar-store.ts
 │     └─ theme-store.ts
+├─ SYSTEM_DOC/
+│  ├─ BUG.md
+│  ├─ DESIGN.md
+│  ├─ FOLDER_STRUCTURE.md
+│  └─ PRD.md
 ├─ .dockerignore
 ├─ .env.example
 ├─ .gitignore
-├─ BUG.md
 ├─ Dockerfile
 ├─ README.md
 ├─ eslint.config.mjs
-├─ file.md
 ├─ next-env.d.ts
 ├─ next.config.ts
 ├─ package.json
