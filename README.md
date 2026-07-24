@@ -1,18 +1,18 @@
 # Pulse
 
-**Team Analytics & Productivity Intelligence Platform with Full Admin Panel & RBAC**
+**Team Management & Real-Time Collaboration Platform with Full Admin Panel & RBAC**
 
 ---
 
 ## Overview
 
-Pulse is a full-stack project management and team analytics platform built with Next.js. It provides teams with a centralized dashboard to manage projects, track tasks, monitor team performance, and gain actionable insights into productivity — all through a modern, responsive interface.
+Pulse is a full-stack team management and collaboration platform built with Next.js. It provides teams with a centralized workspace to manage projects, track tasks, collaborate through real-time chat, and monitor team performance — all through a modern, responsive interface.
 
-The application includes a complete **Admin Panel with Role-Based Access Control (RBAC)**, supporting 6 user roles with 40 granular permissions, comprehensive audit logging, and system management tools.
+The application includes a complete **Admin Panel with Role-Based Access Control (RBAC)**, supporting 6 user roles with 40 granular permissions, comprehensive audit logging, and system management tools. Real-time communication is powered by **Socket.IO** with team chat, media sharing, typing indicators, and read receipts.
 
-**Why it was built:** Teams need a lightweight, self-hostable alternative to heavy project management tools. Pulse delivers the core functionality — project tracking, task management with Kanban boards, team performance analytics, and activity monitoring — with enterprise-grade access control.
+**Why it was built:** Teams need a lightweight, self-hostable alternative to heavy project management and communication tools. Pulse delivers project tracking, task management with Kanban boards, real-time team chat with file sharing, and activity monitoring — with enterprise-grade access control — in a single deployable application.
 
-**Who it is for:** Small to medium development teams, project managers, and administrators who want visibility into team productivity with minimal setup overhead.
+**Who it is for:** Small to medium development teams, project managers, and administrators who want visibility into team productivity and real-time collaboration with minimal setup overhead.
 
 ---
 
@@ -24,27 +24,28 @@ The application includes a complete **Admin Panel with Role-Based Access Control
 - JWT-based authentication with 7-day token expiry
 - Password hashing with bcrypt (12 rounds)
 - Authenticated route protection with automatic redirect
-- Account lockout after failed login attempts
+- Account lockout after 5 failed login attempts (30-minute window)
 - Login attempt tracking and history
 - Session management with validation
+- Forced password reset on first login for bootstrap admin
 
 ### Admin Panel
 - Dedicated admin dashboard with system-wide metrics
 - Full RBAC system with 6 roles and 40 permissions
 - User management (create, edit, delete, suspend, activate)
-- Role management with permission assignment
+- Role management with granular permission assignment
 - Project management across all workspaces
-- Task management across all projects
+- Task management across all projects with bulk operations
 - Workspace overview
-- Team performance monitoring
+- Team performance monitoring with per-member stats
 - System analytics dashboard
 - Activity feed with filtering
-- Audit log with detailed before/after snapshots
+- Audit log with before/after state snapshots
 - Login history tracking
 - Feature flag management
 - System settings configuration
 - System health monitoring
-- Announcement broadcasting
+- Announcement broadcasting with targeted delivery
 
 ### Role-Based Access Control (RBAC)
 - **Super Admin** — Full system access
@@ -54,13 +55,13 @@ The application includes a complete **Admin Panel with Role-Based Access Control
 - **Member** — Standard task operations
 - **Viewer** — Read-only access
 
-### Dashboard
-- Overview with stat cards (projects, tasks, completion rate, team size)
-- Task distribution visualization by status
-- Animated progress ring for completion rate
-- Recent activity feed with relative timestamps
-- Weekly performance bar chart
-- Top performers leaderboard
+### Team Management
+- Create and manage teams within workspaces
+- Team member listing with avatars and role badges
+- Per-member stats: total tasks, completed tasks, efficiency rating
+- Team summary cards (total members, avg efficiency, tasks completed)
+- Team-level project and task assignments
+- Team lead designation
 
 ### Project Management
 - Create projects with name, description, and color coding
@@ -68,6 +69,8 @@ The application includes a complete **Admin Panel with Role-Based Access Control
 - Project detail page with Kanban board view
 - Search and filter projects
 - Task count and completion tracking per project
+- Project archiving and restoration
+- Per-project member management
 
 ### Task Management
 - Create tasks with title, description, status, priority, and project assignment
@@ -76,40 +79,76 @@ The application includes a complete **Admin Panel with Role-Based Access Control
 - Inline task status toggle
 - Filter tasks by status and priority
 - Search tasks by title
-- Due date display
+- Due date display and management
+- Bulk task operations
+- Task comments
 
 ### Kanban Board
 - Per-project Kanban view with four columns
 - Quick status transition buttons on each card
 - Task count badges per column
 
-### Team Management
-- Team member listing with avatars and role badges
-- Per-member stats: total tasks, completed tasks, efficiency rating
-- Team summary cards (total members, avg efficiency, tasks completed)
-- Efficiency progress bars
+### Team Chat (Real-Time)
+- Real-time messaging powered by Socket.IO
+- Per-team chat rooms with access control
+- Online user presence indicators
+- Typing indicators
+- Read receipts with per-message tracking
+- Message editing (15-minute edit window)
+- Message deletion (author, admin, or team lead)
+- Message pinning (admin or team lead)
+- Threaded replies
+- Context menu for message actions
+- Emoji picker
+- Auto-scroll with unread message indicators
 
-### Settings
-- Profile section with avatar and editable fields
-- Theme preferences (Light / Dark / System)
-- Security section with password change form
-- Notification preferences with toggle switches
-- Danger zone with account deletion option
+### Media Sharing
+- File and image uploads in team chat
+- Support for images, videos, audio, and documents
+- Image/video dimension metadata
+- Attachment renderer with file type icons
+- Upload progress tracking
+- Lightbox viewer for image previews
+
+### Announcements
+- System-wide or targeted announcements
+- Target by audience: everyone, specific teams, roles, or users
+- Announcement types: info, warning, critical
+- Expiration dates for time-limited announcements
+- Read tracking per user
+- Announcement banner component
+- Real-time read receipt via Socket.IO
 
 ### Notifications
 - Notification bell with unread count badge
 - Dropdown notification panel
 - Mark all as read functionality
+- Notification types: info, warning, error, success
+- Deep link support for notification actions
 
-### UI/UX
-- Fully custom component library (Button, Card, Badge, Modal, Input, Select, Avatar, etc.)
-- Collapsible sidebar with mobile overlay
-- Responsive design across all screen sizes
-- Skeleton loading states
-- Smooth animations and transitions
-- Glass morphism effects
-- Gradient text and borders
-- Custom scrollbar styling
+### Activity Tracking
+- Automatic activity logging for key actions
+- Activity feed with filtering
+- User activity history
+- Task-linked activity context
+
+### Audit Logs
+- Every admin action generates an audit log entry
+- Before/after JSON state snapshots
+- IP address, user agent, and device tracking
+- Indexed queries on admin, action, resource, and timestamp
+
+### User Profiles & Avatar System
+- Profile settings with editable fields
+- Avatar upload with file validation
+- Avatar metadata tracking (file name, MIME type, size, upload time)
+- Avatar caching headers for performance
+- Theme preferences (Light / Dark / System)
+
+### Feature Flags
+- Admin-managed feature toggles
+- Enable/disable system features dynamically
+- Feature flag CRUD with audit trail
 
 ---
 
@@ -123,13 +162,17 @@ The application includes a complete **Admin Panel with Role-Based Access Control
 | **Database** | SQLite |
 | **ORM** | Prisma 6.19.3 |
 | **Authentication** | JWT (jsonwebtoken) + bcryptjs |
+| **Real-Time** | Socket.IO 4.8.3 (WebSocket + polling) |
 | **Styling** | Tailwind CSS 4 |
 | **State Management** | Zustand 5.0.14 |
 | **Animation** | Framer Motion 12.42.2 |
 | **Charts** | Recharts 3.9.2 |
 | **Validation** | Zod 4.4.3 |
 | **Icons** | Lucide React |
+| **Date Utilities** | date-fns 4.4.0 |
+| **Toasts** | Sonner 2.0.7 |
 | **Build Tool** | Next.js (Turbopack) |
+| **Runtime** | tsx (TypeScript execution) |
 | **Linting** | ESLint 9 with eslint-config-next |
 | **Containerization** | Docker (multi-stage build) |
 
@@ -138,65 +181,82 @@ The application includes a complete **Admin Panel with Role-Based Access Control
 ## Project Architecture
 
 ```
-pulse/
+teamlens/
 ├── prisma/
-│   ├── schema.prisma          # Database schema (20+ models)
-│   ├── seed.ts                # Database seeder (roles, permissions, settings)
-│   └── dev.db                 # SQLite development database
-├── public/                    # Static assets
+│   ├── schema.prisma          # Database schema (25+ models)
+│   └── seed.ts                # Database seeder (roles, permissions, settings, bootstrap admin)
+├── public/                    # Static assets (SVG icons)
 ├── src/
 │   ├── app/
 │   │   ├── api/               # REST API endpoints
-│   │   │   ├── auth/          # Authentication (login, register, me)
+│   │   │   ├── auth/          # Authentication (login, register, me, change-password)
 │   │   │   ├── admin/         # Admin API (15+ route groups)
+│   │   │   ├── announcements/ # Announcement CRUD and read tracking
+│   │   │   ├── chat/          # Chat file uploads
 │   │   │   ├── projects/      # Project CRUD
 │   │   │   ├── tasks/         # Task CRUD
-│   │   │   ├── teams/         # Team listing
+│   │   │   ├── teams/         # Team listing and chat
 │   │   │   ├── activities/    # Activity feed
-│   │   │   └── notifications/ # Notifications
+│   │   │   ├── notifications/ # Notifications
+│   │   │   └── user/          # User avatar management
 │   │   ├── admin/             # Admin panel pages (16 pages)
-│   │   │   ├── dashboard/     # Admin overview
-│   │   │   ├── users/         # User management
-│   │   │   ├── roles/         # Role management
-│   │   │   ├── permissions/   # Permission viewer
+│   │   │   ├── dashboard/     # Admin overview with metrics
+│   │   │   ├── users/         # User management with CRUD
+│   │   │   ├── roles/         # Role management with permissions
+│   │   │   ├── permissions/   # Permission catalog by module
 │   │   │   ├── projects/      # Project management
-│   │   │   ├── tasks/         # Task management
+│   │   │   ├── tasks/         # Task management with bulk ops
 │   │   │   ├── workspaces/    # Workspace overview
-│   │   │   ├── teams/         # Team performance
+│   │   │   ├── teams/         # Team management and chat
 │   │   │   ├── analytics/     # System analytics
 │   │   │   ├── activity/      # Activity feed
-│   │   │   ├── audit/         # Audit logs
-│   │   │   ├── login-history/ # Login attempts
+│   │   │   ├── audit/         # Audit logs with snapshots
+│   │   │   ├── login-history/ # Login attempt history
 │   │   │   ├── announcements/ # System announcements
-│   │   │   ├── feature-flags/ # Feature toggles
+│   │   │   ├── feature-flags/ # Feature flag management
 │   │   │   ├── settings/      # System settings
 │   │   │   └── health/        # System health
 │   │   ├── dashboard/         # User dashboard pages
+│   │   │   ├── projects/      # Project list and detail
+│   │   │   ├── tasks/         # Task board
+│   │   │   ├── team/          # Team view and chat
+│   │   │   ├── announcements/ # User announcements
+│   │   │   └── settings/      # User settings
 │   │   ├── login/             # Login page
 │   │   ├── register/          # Registration page
+│   │   ├── change-password/   # Password change page
 │   │   ├── layout.tsx         # Root layout
 │   │   ├── page.tsx           # Landing page
 │   │   └── globals.css        # Global styles
 │   ├── components/
-│   │   ├── admin/             # Admin-specific components
-│   │   ├── auth/              # Login and register forms
-│   │   ├── dashboard/         # Dashboard components
+│   │   ├── announcements/     # Announcement banner
+│   │   ├── auth/              # Login, register, change-password forms
+│   │   ├── chat/              # Real-time chat components (9 files)
+│   │   ├── dashboard/         # Dashboard widgets (stat cards, progress ring, skeleton)
 │   │   ├── landing/           # Landing page
 │   │   ├── layout/            # Shell, header, sidebar
 │   │   ├── providers/         # Theme and auth providers
-│   │   └── ui/                # Reusable UI primitives
+│   │   └── ui/                # Reusable UI primitives (14 components)
+│   ├── hooks/
+│   │   ├── use-chat-socket.ts # Socket.IO chat hook
+│   │   ├── use-file-upload.ts # File upload hook
+│   │   └── use-polling.ts     # Polling hook
 │   ├── lib/
 │   │   ├── auth.ts            # JWT + bcrypt utilities
 │   │   ├── rbac.ts            # RBAC: permissions, roles, authorization
+│   │   ├── chat-rbac.ts       # Chat-specific access control
 │   │   ├── audit.ts           # Audit logging system
 │   │   ├── security.ts        # Rate limiting, sessions, login tracking
 │   │   ├── db.ts              # Prisma client singleton
+│   │   ├── socket-server.ts   # Socket.IO server (chat, presence, pins)
+│   │   ├── socket-client.ts   # Socket.IO client wrapper
 │   │   ├── utils.ts           # cn(), date formatting, helpers
 │   │   └── validations.ts     # Zod schemas
 │   └── stores/
 │       ├── auth-store.ts      # Auth state
 │       ├── sidebar-store.ts   # Sidebar state
 │       └── theme-store.ts     # Theme state
+├── server.ts                  # Custom Node.js server with Socket.IO
 ├── .env.example
 ├── Dockerfile
 ├── package.json
@@ -274,6 +334,37 @@ All admin routes follow this pattern:
 
 ---
 
+## Real-Time Communication (Socket.IO)
+
+Pulse uses Socket.IO for real-time features. The server is initialized in `server.ts` alongside the Next.js HTTP server.
+
+### Events
+
+| Event | Direction | Description |
+|---|---|---|
+| `chat:join` | Client → Server | Join a team chat room |
+| `chat:leave` | Client → Server | Leave a team chat room |
+| `chat:message` | Bidirectional | Send/receive chat messages |
+| `chat:edit` | Bidirectional | Edit a message (15-min window) |
+| `chat:delete` | Bidirectional | Delete a message |
+| `chat:pin` | Bidirectional | Pin/unpin a message |
+| `chat:typing` | Bidirectional | Typing indicator broadcast |
+| `chat:read` | Client → Server | Mark messages as read |
+| `chat:read-receipt` | Server → Client | Read receipt broadcast |
+| `chat:online` | Server → Client | Online user presence update |
+| `chat:error` | Server → Client | Error notification |
+| `announcement:read` | Client → Server | Mark announcement as read |
+
+### Access Control
+
+- Chat access is verified per team membership
+- Admins and Super Admins can access all team chats
+- Message editing is restricted to the author within 15 minutes
+- Message deletion requires authorship, admin role, or team lead status
+- Message pinning requires admin or team lead role
+
+---
+
 ## Admin Routes
 
 | Route | Description |
@@ -284,9 +375,11 @@ All admin routes follow this pattern:
 | `/admin/roles` | Role management with permission assignment |
 | `/admin/permissions` | Permission catalog by module |
 | `/admin/projects` | All projects with archive/restore/delete |
-| `/admin/tasks` | All tasks with filters and delete |
+| `/admin/tasks` | All tasks with filters and bulk delete |
 | `/admin/workspaces` | Workspace listing |
-| `/admin/teams` | Team member performance |
+| `/admin/teams` | Team management and performance |
+| `/admin/teams/[id]` | Team detail with member stats |
+| `/admin/teams/chat` | Team chat overview |
 | `/admin/analytics` | System-wide analytics |
 | `/admin/activity` | Activity feed |
 | `/admin/audit` | Audit logs with before/after snapshots |
@@ -295,6 +388,7 @@ All admin routes follow this pattern:
 | `/admin/feature-flags` | Feature flag management |
 | `/admin/settings` | System settings by category |
 | `/admin/health` | System health and database stats |
+| `/admin/assignments` | Team assignment management |
 
 ---
 
@@ -336,6 +430,8 @@ Every admin action generates an audit log entry with:
 | **Server Info Hidden** | `poweredByHeader: false` |
 | **Env Exclusion** | `.env` files excluded from git and Docker |
 | **React Strict Mode** | Enabled for catching common bugs |
+| **Socket.IO Auth** | JWT verification on WebSocket handshake |
+| **Chat RBAC** | Team membership verification for chat access |
 
 ---
 
@@ -345,25 +441,33 @@ Every admin action generates an audit log entry with:
 
 | Model | Description |
 |---|---|
-| `User` | User accounts with auth fields, status, lockout |
-| `Session` | Active user sessions |
+| `User` | User accounts with auth fields, status, avatar metadata, lockout |
+| `Session` | Active user sessions with IP and device tracking |
 | `Role` | RBAC roles (system + custom) |
 | `Permission` | Granular permissions (40 total) |
 | `RolePermission` | Role-permission mapping |
 | `UserRole` | User-role mapping |
-| `Workspace` | Workspaces grouping projects |
+| `Workspace` | Workspaces grouping projects and teams |
 | `WorkspaceMember` | User-workspace membership |
+| `Team` | Teams within workspaces |
+| `TeamMember` | Team membership with role (member/lead) |
+| `TeamAssignment` | Team-level project and task assignments |
+| `ChatMessage` | Real-time chat messages with threading |
+| `ChatAttachment` | File attachments for chat messages |
+| `ChatReadReceipt` | Per-message read receipt tracking |
 | `Project` | Projects with status (active/archived) |
-| `Task` | Tasks with status and priority |
+| `ProjectMember` | Per-project member management |
+| `Task` | Tasks with status, priority, position, and assignee |
 | `Comment` | Task comments |
 | `Activity` | User activity log |
-| `AuditLog` | Admin action audit trail |
+| `AuditLog` | Admin action audit trail with state snapshots |
 | `LoginHistory` | Login attempt history |
 | `Notification` | User notifications |
 | `FeatureFlag` | Feature toggles |
 | `SystemSetting` | Application settings |
 | `ApiKey` | API key management |
-| `Announcement` | System announcements |
+| `Announcement` | System announcements with targeting |
+| `AnnouncementRead` | Per-user announcement read tracking |
 | `RateLimit` | Rate limiting counters |
 
 ### Migrations
@@ -372,7 +476,7 @@ Every admin action generates an audit log entry with:
 npx prisma generate          # Generate Prisma client
 npx prisma db push           # Push schema to database
 npx prisma studio            # Open Prisma Studio
-npm run db:seed              # Seed roles, permissions, settings
+npm run db:seed              # Seed roles, permissions, settings, and bootstrap admin
 npm run db:reset             # Reset and reseed database
 ```
 
@@ -383,14 +487,14 @@ npm run db:reset             # Reset and reseed database
 ### Prerequisites
 
 - Node.js 18+ (recommended: 20 LTS)
-- npm, pnpm, or yarn
+- npm
 
 ### Setup
 
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd pulse
+cd teamlens
 
 # Install dependencies
 npm install
@@ -453,7 +557,9 @@ docker run -p 3000:3000 \
 | `DATABASE_URL` | Yes | Database connection string. Default: `file:./dev.db` |
 | `JWT_SECRET` | Yes | Secret key for signing JWT tokens |
 | `NEXTAUTH_URL` | No | Base URL. Default: `http://localhost:3000` |
+| `NEXT_PUBLIC_APP_URL` | No | Public app URL for Socket.IO CORS. Default: `http://localhost:3000` |
 | `NODE_ENV` | No | `development`, `production`, or `test` |
+| `PORT` | No | Server port. Default: `3000` |
 
 ---
 
@@ -461,9 +567,10 @@ docker run -p 3000:3000 \
 
 | Script | Command | Description |
 |---|---|---|
-| `dev` | `next dev` | Start development server |
+| `dev` | `tsx watch server.ts` | Start development server with Socket.IO |
 | `build` | `next build` | Create production build |
-| `start` | `next start` | Start production server |
+| `start` | `NODE_ENV=production tsx server.ts` | Start production server with Socket.IO |
+| `server` | `tsx server.ts` | Start server (uses current NODE_ENV) |
 | `lint` | `eslint` | Run ESLint |
 | `db:seed` | `npx tsx prisma/seed.ts` | Seed database |
 | `db:reset` | `npx prisma db push --force-reset && npx tsx prisma/seed.ts` | Reset and seed database |
@@ -488,6 +595,10 @@ docker run -p 3000:3000 \
 #### GET `/api/auth/me`
 - **Auth Required:** Yes (Bearer token)
 - **Response:** `{ user }`
+
+#### POST `/api/auth/change-password`
+- **Auth Required:** Yes (Bearer token)
+- **Body:** `{ currentPassword, newPassword }`
 
 ### Admin — Users
 
@@ -570,6 +681,24 @@ docker run -p 3000:3000 \
 #### DELETE `/api/admin/tasks/[id]`
 - **Auth Required:** Yes + `tasks:delete`
 
+### Admin — Teams
+
+#### GET `/api/admin/teams`
+- **Auth Required:** Yes + `teams:view`
+- **Response:** Teams with member counts and stats
+
+#### GET `/api/admin/teams/[id]`
+- **Auth Required:** Yes + `teams:view`
+- **Response:** Team detail with members and assignments
+
+#### GET `/api/admin/teams/[id]/chat`
+- **Auth Required:** Yes + `teams:view`
+- **Response:** Team chat messages
+
+#### GET `/api/admin/teams/[id]/members`
+- **Auth Required:** Yes + `teams:view`
+- **Response:** Team member list
+
 ### Admin — Other Endpoints
 
 | Method | Route | Permission | Description |
@@ -577,8 +706,8 @@ docker run -p 3000:3000 \
 | GET | `/api/admin/analytics` | `analytics:view` | System analytics |
 | GET | `/api/admin/activity` | `activity:view` | Activity feed |
 | GET | `/api/admin/audit` | `audit:view` | Audit logs |
+| GET | `/api/admin/assignments` | `teams:view` | Team assignments |
 | GET | `/api/admin/workspaces` | `workspaces:view` | Workspace listing |
-| GET | `/api/admin/teams` | `teams:view` | Team members |
 | GET | `/api/admin/health` | `system:health` | System health |
 | GET | `/api/admin/settings` | `system:settings` | System settings |
 | PATCH | `/api/admin/settings/[id]` | `system:settings` | Update setting |
@@ -590,6 +719,17 @@ docker run -p 3000:3000 \
 | GET | `/api/admin/announcements` | — | List announcements |
 | POST | `/api/admin/announcements` | `system:announcements` | Create announcement |
 
+### User Endpoints
+
+| Method | Route | Description |
+|---|---|---|
+| POST | `/api/chat/upload` | Upload file for chat |
+| GET/POST | `/api/notifications` | List/create notifications |
+| POST | `/api/user/avatar` | Upload user avatar |
+| GET | `/api/announcements` | List active announcements |
+| POST | `/api/announcements/[id]/read` | Mark announcement as read |
+| POST | `/api/announcements/read-all` | Mark all announcements as read |
+
 ---
 
 ## Performance
@@ -599,7 +739,8 @@ docker run -p 3000:3000 \
 - **Skeleton Loading:** Perceived performance through skeleton placeholders
 - **Parallel Data Fetching:** Dashboard fetches multiple endpoints simultaneously
 - **Permission Caching:** 5-minute TTL cache for user permissions
-- **Database Indexing:** AuditLog indexed on adminId, action, resource, createdAt
+- **Database Indexing:** AuditLog indexed on adminId, action, resource, createdAt; LoginHistory indexed on userId, email
+- **Avatar Cache Headers:** `Cache-Control` headers for avatar image optimization
 
 ---
 
@@ -621,6 +762,8 @@ docker run -p 3000:3000 \
 3. Set environment variables
 4. Deploy
 
+> **Note:** Vercel's serverless functions do not support Socket.IO. For real-time chat, deploy with the custom server (`server.ts`) on a VPS or Docker.
+
 ### Docker
 ```bash
 docker build -t pulse .
@@ -635,50 +778,6 @@ docker run -d -p 3000:3000 \
 ```bash
 npm run build && npm run start
 ```
-
----
-
-## Screenshots
-
-### Landing Page
-![Landing Page](public/landing-preview.png)
-
-### Dashboard
-![Dashboard](public/dashboard-preview.png)
-
-### Admin Dashboard
-![Admin Dashboard](public/admin-dashboard-preview.png)
-
-### User Management
-![User Management](public/admin-users-preview.png)
-
-### Role Management
-![Role Management](public/admin-roles-preview.png)
-
-### Audit Logs
-![Audit Logs](public/admin-audit-preview.png)
-
-### Kanban Board
-![Kanban Board](public/kanban-preview.png)
-
-### Login
-![Login](public/login-preview.png)
-
----
-
-## Future Improvements
-
-- Drag-and-drop Kanban board
-- Real-time updates with WebSockets
-- Email notification delivery
-- File attachments on tasks
-- Time tracking and reporting
-- Team invitation flow
-- Two-factor authentication (2FA architecture ready)
-- API key management UI
-- Data export functionality
-- End-to-end testing with Playwright
-- CI/CD pipeline with GitHub Actions
 
 ---
 
@@ -707,6 +806,7 @@ Built with:
 - [Next.js](https://nextjs.org/) — React framework
 - [React](https://react.dev/) — UI library
 - [Prisma](https://www.prisma.io/) — Database ORM
+- [Socket.IO](https://socket.io/) — Real-time communication
 - [Tailwind CSS](https://tailwindcss.com/) — Utility-first CSS
 - [Zustand](https://zustand-demo.pmnd.rs/) — State management
 - [Framer Motion](https://www.framer.com/motion/) — Animations
@@ -715,3 +815,5 @@ Built with:
 - [Lucide](https://lucide.dev/) — Icon library
 - [bcryptjs](https://github.com/nicolo-ribaudo/bcryptjs) — Password hashing
 - [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) — JWT tokens
+- [Sonner](https://sonner.emilkowal.dev/) — Toast notifications
+- [date-fns](https://date-fns.org/) — Date utilities
