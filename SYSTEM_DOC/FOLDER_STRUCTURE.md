@@ -256,6 +256,7 @@ teamlens/
 │     └─ theme-store.ts
 ├─ SYSTEM_DOC/
 │  ├─ BUG.md
+│  ├─ DATABASE.md
 │  ├─ DESIGN.md
 │  ├─ FOLDER_STRUCTURE.md
 │  └─ PRD.md
