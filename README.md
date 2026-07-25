@@ -2,6 +2,32 @@
 
 **Team Management & Real-Time Collaboration Platform with Full Admin Panel & RBAC**
 
+[![Version](https://img.shields.io/badge/version-0.1.0-blue?style=flat-square)](https://github.com/monxcode/pulse) [![Status](https://img.shields.io/badge/status-active-brightgreen?style=flat-square)](https://github.com/monxcode/pulse) [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](https://github.com/monxcode/pulse/blob/main/LICENSE) [![Maintained](https://img.shields.io/badge/maintained-yes-brightgreen?style=flat-square)](https://github.com/monxcode/pulse) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](https://github.com/monxcode/pulse/pulls) [![Stars](https://img.shields.io/github/stars/monxcode/pulse?style=flat-square&color=yellow)](https://github.com/monxcode/pulse/stargazers) [![Forks](https://img.shields.io/github/forks/monxcode/pulse?style=flat-square&color=blue)](https://github.com/monxcode/pulse/network/members) [![Issues](https://img.shields.io/github/issues/monxcode/pulse?style=flat-square&color=orange)](https://github.com/monxcode/pulse/issues) [![Last Commit](https://img.shields.io/github/last-commit/monxcode/pulse?style=flat-square&color=cyan)](https://github.com/monxcode/pulse/commits) [![Repo Size](https://img.shields.io/github/repo-size/monxcode/pulse?style=flat-square&color=purple)](https://github.com/monxcode/pulse) [![Top Language](https://img.shields.io/github/languages/top/monxcode/pulse?style=flat-square&color=3178C6)](https://github.com/monxcode/pulse)
+
+---
+
+## Tech Stack
+
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/) [![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/) [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/) [![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white)](https://www.prisma.io/) [![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)](https://www.sqlite.org/) [![Socket.IO](https://img.shields.io/badge/Socket.IO-010101?style=flat-square&logo=socket.io&logoColor=white)](https://socket.io/) [![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/) [![npm](https://img.shields.io/badge/npm-CB3837?style=flat-square&logo=npm&logoColor=white)](https://www.npmjs.com/)
+
+---
+
+## Features
+
+[![RBAC](https://img.shields.io/badge/RBAC-40_permissions-FF6B6B?style=flat-square)](https://github.com/monxcode/pulse) [![Authentication](https://img.shields.io/badge/Authentication-JWT-4ECDC4?style=flat-square)](https://github.com/monxcode/pulse) [![Team Management](https://img.shields.io/badge/Team_Management-Yes-45B7D1?style=flat-square)](https://github.com/monxcode/pulse) [![Project Management](https://img.shields.io/badge/Project_Management-Kanban-96CEB4?style=flat-square)](https://github.com/monxcode/pulse) [![Task Management](https://img.shields.io/badge/Task_Management-4_statuses-DDA0DD?style=flat-square)](https://github.com/monxcode/pulse) [![Real-Time Chat](https://img.shields.io/badge/Real--Time_Chat-Socket.IO-F7DC6F?style=flat-square)](https://github.com/monxcode/pulse) [![Media Sharing](https://img.shields.io/badge/Media_Sharing-Upload-BB8FCE?style=flat-square)](https://github.com/monxcode/pulse) [![Notifications](https://img.shields.io/badge/Notifications-In--App-85C1E9?style=flat-square)](https://github.com/monxcode/pulse) [![Announcements](https://img.shields.io/badge/Announcements-Targeted-F0B27A?style=flat-square)](https://github.com/monxcode/pulse) [![Audit Logs](https://img.shields.io/badge/Audit_Logs-Before_After-82E0AA?style=flat-square)](https://github.com/monxcode/pulse) [![Feature Flags](https://img.shields.io/badge/Feature_Flags-Dynamic-F1948A?style=flat-square)](https://github.com/monxcode/pulse) [![Responsive UI](https://img.shields.io/badge/Responsive_UI-Mobile_First-85929E?style=flat-square)](https://github.com/monxcode/pulse) [![Dark Mode](https://img.shields.io/badge/Dark_Mode-Supported-2C3E50?style=flat-square)](https://github.com/monxcode/pulse)
+
+---
+
+## Code Quality
+
+[![ESLint](https://img.shields.io/badge/ESLint-4B3263?style=flat-square&logo=eslint&logoColor=white)](https://eslint.org/) [![TypeScript](https://img.shields.io/badge/Type_Safe-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Production Ready](https://img.shields.io/badge/Production_Ready-Yes-brightgreen?style=flat-square)](https://github.com/monxcode/pulse)
+
+---
+
+## Documentation
+
+[![README](https://img.shields.io/badge/README-Comprehensive-blueviolet?style=flat-square)](https://github.com/monxcode/pulse/blob/main/README.md) [![PRD](https://img.shields.io/badge/PRD-Complete-9b59b6?style=flat-square)](https://github.com/monxcode/pulse/blob/main/SYSTEM_DOC/PRD.md) [![DESIGN](https://img.shields.io/badge/DESIGN-System-e74c3c?style=flat-square)](https://github.com/monxcode/pulse/blob/main/DESIGN.md) [![DATABASE](https://img.shields.io/badge/DATABASE-Schema-27ae60?style=flat-square)](https://github.com/monxcode/pulse/blob/main/SYSTEM_DOC/DATABASE.md) [![FOLDER_STRUCTURE](https://img.shields.io/badge/FOLDER_STRUCTURE-Architecture-3498db?style=flat-square)](https://github.com/monxcode/pulse/blob/main/SYSTEM_DOC/FOLDER_STRUCTURE.md)
+
 ---
 
 ## Overview
