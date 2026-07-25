@@ -487,12 +487,34 @@ Every admin action generates an audit log entry with:
 
 ### Migrations
 
+#### Generate Prisma Client
+
 ```bash
-npx prisma generate          # Generate Prisma client
-npx prisma db push           # Push schema to database
-npx prisma studio            # Open Prisma Studio
-npm run db:seed              # Seed roles, permissions, settings, and bootstrap admin
-npm run db:reset             # Reset and reseed database
+npx prisma generate
+```
+
+#### Push schema to database
+
+```bash
+npx prisma db push
+```
+
+#### Open Prisma Studio
+
+```bash
+npx prisma studio
+```
+
+#### Seed roles, permissions, settings, and bootstrap admin
+
+```bash
+npm run db:seed
+```
+
+#### Reset and reseed database
+
+```bash
+npm run db:reset
 ```
 
 ---
@@ -506,24 +528,45 @@ npm run db:reset             # Reset and reseed database
 
 ### Setup
 
+#### Clone the repository
+
 ```bash
-# Clone the repository
 git clone <repository-url>
+```
+
+#### Navigate to the project
+
+```bash
 cd teamlens
+```
 
-# Install dependencies
+#### Install dependencies
+
+```bash
 npm install
+```
 
-# Set up environment variables
+#### Configure environment variables
+
+```bash
 cp .env.example .env
+```
 
-# Generate Prisma client
+#### Generate Prisma Client
+
+```bash
 npx prisma generate
+```
 
-# Push database schema
+#### Push database schema
+
+```bash
 npx prisma db push
+```
 
-# Seed database with roles, permissions, settings, and bootstrap admin
+#### Seed database with roles, permissions, settings, and bootstrap admin
+
+```bash
 npm run db:seed
 ```
 
@@ -548,15 +591,29 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Production Build
 
+#### Create production build
+
 ```bash
 npm run build
+```
+
+#### Start production server
+
+```bash
 npm run start
 ```
 
 ### Docker
 
+#### Build the Docker image
+
 ```bash
 docker build -t pulse .
+```
+
+#### Run the container
+
+```bash
 docker run -p 3000:3000 \
   -e DATABASE_URL="file:./dev.db" \
   -e JWT_SECRET="your-secret-key" \
@@ -780,8 +837,16 @@ docker run -p 3000:3000 \
 > **Note:** Vercel's serverless functions do not support Socket.IO. For real-time chat, deploy with the custom server (`server.ts`) on a VPS or Docker.
 
 ### Docker
+
+#### Build the Docker image
+
 ```bash
 docker build -t pulse .
+```
+
+#### Run the container
+
+```bash
 docker run -d -p 3000:3000 \
   -e DATABASE_URL="file:./dev.db" \
   -e JWT_SECRET="your-secret" \
@@ -790,6 +855,9 @@ docker run -d -p 3000:3000 \
 ```
 
 ### Self-Hosted
+
+#### Build and start
+
 ```bash
 npm run build && npm run start
 ```
