@@ -256,10 +256,20 @@ teamlens/
 │       ├── auth-store.ts      # Auth state
 │       ├── sidebar-store.ts   # Sidebar state
 │       └── theme-store.ts     # Theme state
+├── SYSTEM_DOC/                # Project documentation
+│   ├── BUG.md                 # Known bugs and issues
+│   ├── DATABASE.md            # Database schema and operational guidelines
+│   ├── DESIGN.md              # Design system and UI guidelines
+│   ├── FOLDER_STRUCTURE.md    # Project folder structure
+│   └── PRD.md                 # Product requirements document
 ├── server.ts                  # Custom Node.js server with Socket.IO
 ├── .env.example
 ├── Dockerfile
+├── eslint.config.mjs          # ESLint configuration
+├── next-env.d.ts              # Next.js TypeScript declarations
+├── next.config.ts             # Next.js configuration
 ├── package.json
+├── postcss.config.mjs         # PostCSS configuration (Tailwind)
 └── tsconfig.json
 ```
 
@@ -320,10 +330,15 @@ Every protected API endpoint checks the user's permissions before executing. The
 
 ### Authorization Flow
 
-```
-Request → JWT Verification → getUserPermissions() → hasPermission() → Route Handler
-                                      ↓
-                              Permission Cache (5min TTL)
+```mermaid
+flowchart LR
+    A[Request] --> B[JWT Verification]
+    B --> C[getUserPermissions]
+    C --> D{hasPermission?}
+    D -->|Yes| E[Route Handler]
+    D -->|No| F[403 Forbidden]
+    C -.->|Cache Hit| G[Permission Cache<br/>5min TTL]
+    G --> D
 ```
 
 All admin routes follow this pattern:
@@ -796,6 +811,19 @@ npm run build && npm run start
 ## License
 
 This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+## Documentation
+
+| Document | Description |
+|---|---|
+| [README.md](README.md) | Project overview, setup, and API reference |
+| [DESIGN.md](DESIGN.md) | Design system, components, and UI guidelines |
+| [DATABASE.md](SYSTEM_DOC/DATABASE.md) | Database schema, relationships, and operational guidelines |
+| [PRD.md](SYSTEM_DOC/PRD.md) | Product requirements document |
+| [FOLDER_STRUCTURE.md](SYSTEM_DOC/FOLDER_STRUCTURE.md) | Project folder structure |
+| [BUG.md](SYSTEM_DOC/BUG.md) | Known bugs and issues |
 
 ---
 
